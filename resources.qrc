@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file>HostCompute.qml</file>
+        <file>Menu/MenuButton.qml</file>
+        <file>Menu/MenuRoundButton.qml</file>
+        <file>Menu/MenuTitle.qml</file>
+        <file>Menu/MyMenu.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>Icon/Menu.png</file>
+        <file>Font/NotoSansCJK-Thin.ttc</file>
+        <file>Font/Roboto-Regular.ttf</file>
+        <file>Font/Roboto-Thin.ttf</file>
+        <file>Page/HomePage.qml</file>
+        <file>Image/SpeedSlot.png</file>
+        <file>Page/TestPage.qml</file>
+    </qresource>
+</RCC>
