@@ -25,7 +25,7 @@ signals:
 
 public slots:
     //启动相关
-    void start();
+    bool start();
     void timerStart();
     void measuringStart();
     void feedingStart();
@@ -48,9 +48,9 @@ public slots:
     //循环冗余校验
     quint16 crc16ForModbus(const QByteArray &data);
 
-    //测试槽函数
-    void test();
 
+    //重新设置com端口
+    void resetPortName(const QString& name);
 
 private:
     QSerialPort* serial;

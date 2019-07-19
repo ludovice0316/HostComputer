@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.12
 import QtQuick.Controls 2.5
 Rectangle{
     id: title_bar
@@ -17,12 +17,17 @@ Rectangle{
         font.pixelSize: 24
     }
 
-    MenuRoundButton{
-        r:16
-        icon_source: "qrc:/Icon/Menu.png"
-        anchors.verticalCenter: parent.verticalCenter
+    ToolButton {
+        id: drawer_closeButton
+        x: 260
+        y: 13
+        width: 32
+        height: 32
+        text: qsTr("Tool Button")
         anchors.right: parent.right
-        anchors.rightMargin: 10
+        anchors.rightMargin: 8
+        anchors.verticalCenter: parent.verticalCenter
+        icon.source: "qrc:/Icon/return.png"
         onClicked: {
             drawer.close()
         }

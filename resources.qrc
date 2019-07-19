@@ -13,5 +13,7 @@
         <file>Page/HomePage.qml</file>
         <file>Image/SpeedSlot.png</file>
         <file>Page/TestPage.qml</file>
+        <file>Icon/Close.png</file>
+        <file>Icon/return.png</file>
     </qresource>
 </RCC>

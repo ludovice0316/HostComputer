@@ -50,7 +50,7 @@ void ReadSerial::start(const QString &name){
     if(serial->open(QIODevice::ReadWrite)){
     }
     else {
-        qDebug()<<"Open Read Serial Failed"<<endl;
+        qDebug()<<"Failed to open ReadSerial"<<endl;
     }
 }
 
@@ -77,56 +77,14 @@ void ReadSerial::beltStop(){
 }
 
 void ReadSerial::beltSpeedChange(const QString& arg){
-    if(arg == "1000"){
-        QByteArray cmd;         //皮带已调速1000命令
-
-        cmd[0]=0x01;cmd[1]=0x04;
-        cmd[2]=0x00;cmd[3]=0x00;
-        cmd[4]=0x00;cmd[5]=0xff;
-        serial->write(cmd);
-    }
-    else if (arg == "2000") {
-        QByteArray cmd;         //皮带已调速2000命令
-
-        cmd[0]=0x01;cmd[1]=0x04;
-        cmd[2]=0x00;cmd[3]=0x00;
-        cmd[4]=0x01;cmd[5]=0xff;
-        serial->write(cmd);
-    }
-    else if(arg == "2700"){
-        QByteArray cmd;         //皮带已调速2700命令
-
-        cmd[0]=0x01;cmd[1]=0x04;
-        cmd[2]=0x00;cmd[3]=0x00;
-        cmd[4]=0x02;cmd[5]=0xff;
-        serial->write(cmd);
-    }
-    else if(arg == "3700"){
-        QByteArray cmd;         //皮带已调速3700命令
-
-        cmd[0]=0x01;cmd[1]=0x04;
-        cmd[2]=0x00;cmd[3]=0x00;
-        cmd[4]=0x03;cmd[5]=0xff;
-        serial->write(cmd);
-    }
-
-}
-
-void ReadSerial::photocellSet(const QString& arg){
-    if(arg == "double"){
-        QByteArray cmd;         //双光电模式命令
-        cmd[0]=0x01;cmd[1]=0x06;
-        cmd[2]=0x00;cmd[3]=0x00;
-        cmd[4]=0x03;cmd[5]=0xff;
-        serial->write(cmd);
-    }
-    else if(arg == "single"){
-        QByteArray cmd;         //单光电模式命令
-        cmd[0]=0x01;cmd[1]=0x06;
-        cmd[2]=0x00;cmd[3]=0x00;
-        cmd[4]=0x01;cmd[5]=0xff;
-        serial->write(cmd);
-    }
+    int rotatingSpeed;
+    int speed = arg.toInt();
+    rotatingSpeed = static_cast<int>(speed*29.83+98.06);
+    QByteArray cmd;
+    cmd[0] = 0x01;cmd[1] = 0x04;
+    cmd[2] = 0x00;cmd[3] = (rotatingSpeed/256)%16+(rotatingSpeed/4096)%16*16;
+    cmd[4] = rotatingSpeed%16+(rotatingSpeed/16)%16*16;cmd[5] = 0xff;
+    serial->write(cmd);
 }
 
 void ReadSerial::calibration(const QString& arg){
@@ -144,4 +102,71 @@ void ReadSerial::calibration(const QString& arg){
         cmd[4]=0x01;cmd[5]=0xff;
         serial->write(cmd);
     }
+}
+
+void ReadSerial::photocellSet(const QString& arg){
+    if(arg == "double"){
+        QByteArray cmd;         //双光电模式命令
+        cmd[0]=0x01;cmd[1]=0x06;
+        cmd[2]=0x00;cmd[3]=0x00;
+        cmd[4]=0x00;cmd[5]=0xff;
+        serial->write(cmd);
+    }
+    else if(arg == "single"){
+        QByteArray cmd;         //单光电模式命令
+        cmd[0]=0x01;cmd[1]=0x06;
+        cmd[2]=0x00;cmd[3]=0x00;
+        cmd[4]=0x01;cmd[5]=0xff;
+        serial->write(cmd);
+    }
+}
+
+QList<QString> ReadSerial::availablePort(){
+    QList<QString> list;
+    auto ports = QSerialPortInfo::availablePorts();
+    for (QSerialPortInfo portInfo : ports) {
+        list.append(portInfo.portName());
+    }
+    return list;
+}
+
+void ReadSerial::resetPortName(const QString& name){
+    serial->close();
+    serial->setPortName(name);
+    if(!serial->open(QIODevice::ReadWrite)){
+        qDebug()<<"Failed to open ReadSerial"<<endl;
+    }
+}
+
+void ReadSerial::dynamic_cal(){
+    QByteArray cmd;         //动态校准命令
+    cmd[0]=0x01;cmd[1]=0x02;
+    cmd[2]=0x00;cmd[3]=0x00;
+    cmd[4]=0x01;cmd[5]=0xff;
+    serial->write(cmd);
+}
+
+void ReadSerial::linear(){
+    QByteArray cmd;         //线性拟合命令
+    cmd[0]=0x01;cmd[1]=0x08;
+    cmd[2]=0x00;cmd[3]=0x00;
+    cmd[4]=0x00;cmd[5]=0xff;
+    serial->write(cmd);
+}
+
+void ReadSerial::newton(){
+    QByteArray cmd;         //牛顿拟合命令
+    cmd[0]=0x01;cmd[1]=0x08;
+    cmd[2]=0x00;cmd[3]=0x00;
+    cmd[4]=0x01;cmd[5]=0xff;
+    serial->write(cmd);
+}
+
+void ReadSerial::zeroSetting(const QString& arg){
+    int x = arg.toInt();
+    QByteArray cmd;
+    cmd[0] = 0x01;cmd[1] = 0x01;
+    cmd[2] = 0x00;cmd[3] = (x/256)%16+(x/4096)%16*16;
+    cmd[4] = x%16+(x/16)%16*16;cmd[5] = 0xff;
+    serial->write(cmd);
 }

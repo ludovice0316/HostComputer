@@ -3,7 +3,6 @@
 WriteSerial::WriteSerial(QObject *parent) : QObject(parent)
 {
     serial = new QSerialPort(this);
-    serial->setPortName("com3");
     serial->setBaudRate(115200);//设置波特率为115200
     serial->setDataBits(QSerialPort::Data8);//设置数据位8
     serial->setParity(QSerialPort::NoParity); //校验位设置为0
@@ -29,15 +28,14 @@ WriteSerial::WriteSerial(QObject *parent) : QObject(parent)
 WriteSerial::~WriteSerial(){
 }
 
-void WriteSerial::start(){
-    serial->close();
-    serial->setPortName("com3");
-    serial->setBaudRate(115200);
-    serial->open(QIODevice::ReadWrite);
-
+bool WriteSerial::start(){
+    if(!serial->isOpen()){
+        return false;
+    }
     startTimer->stop();
     startCount = 0;
     startTimer->start();
+    return true;
 }
 
 void WriteSerial::timerStart(){
@@ -89,14 +87,13 @@ void WriteSerial::sortingStart(){
 }
 
 void WriteSerial::stop(){
-    serial->close();
-    serial->setPortName("com3");
-    serial->setBaudRate(115200);
-    serial->open(QIODevice::ReadWrite);
-
-    stopTimer->stop();
-    stopCount = 0;
-    stopTimer->start();
+    if(!serial->isOpen()){
+    }
+    else{
+        stopTimer->stop();
+        stopCount = 0;
+        stopTimer->start();
+    }
 }
 
 void WriteSerial::timerStop(){
@@ -195,15 +192,15 @@ quint16 WriteSerial::crc16ForModbus(const QByteArray &data){
 }
 
 void WriteSerial::changeSpeed(const QString& s){
-    serial->close();
-    serial->setPortName("com3");
-    serial->setBaudRate(115200);
-    serial->open(QIODevice::ReadWrite);
-    speed = s;
-    speedTimer->stop();
-    speedCount = 0;
-    speedTimer->start();
+    if(!serial->isOpen()){
 
+    }
+    else{
+        speed = s;
+        speedTimer->stop();
+        speedCount = 0;
+        speedTimer->start();
+    }
 }
 
 void WriteSerial::speedTimerStart(){
@@ -236,6 +233,10 @@ void WriteSerial::measuringSpeed(const QString& speed){
     quint16 crc16;
     bool ok;
     temp=str.toInt(&ok,10);
+    temp = temp*29.83+98.06;
+    temp = static_cast<int>(temp);
+
+
 
     //发送调速命令
     QByteArray MeasuringChange;
@@ -250,7 +251,6 @@ void WriteSerial::measuringSpeed(const QString& speed){
     if(serial!=nullptr){
     serial->write(MeasuringChange);
     }
-
 }
 
 void WriteSerial::feedingSpeed(const QString& speed){
@@ -263,6 +263,9 @@ void WriteSerial::feedingSpeed(const QString& speed){
     quint16 crc16;
     bool ok;
     temp=str.toInt(&ok,10);
+    temp = temp*29.83+98.06;
+    temp = static_cast<int>(temp);
+
 
     //发送调速命令
     QByteArray FeedingChange;
@@ -290,6 +293,9 @@ void WriteSerial::sortingSpeed(const QString& speed){
     quint16 crc16;
     bool ok;
     temp=str.toInt(&ok,10);
+    temp = temp*29.83+98.06;
+    temp = static_cast<int>(temp);
+
 
     //发送调速命令
     QByteArray SortingChange;
@@ -307,8 +313,10 @@ void WriteSerial::sortingSpeed(const QString& speed){
     }
 }
 
-void WriteSerial::test(){
-//    QMetaObject::invokeMethod(chart, "addData");
-//    qDebug()<<"test:"<<QThread::currentThreadId();
-
+void WriteSerial::resetPortName(const QString& name){
+    serial->close();
+    serial->setPortName(name);
+    if(!serial->open(QIODevice::ReadWrite)){
+        qDebug()<<"Failed to open WriteSerial"<<endl;
+    }
 }

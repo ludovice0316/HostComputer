@@ -4,6 +4,7 @@
 #include <QObject>
 #include<QVector>
 #include<QSerialPort>
+#include <QSerialPortInfo>
 
 class ReadSerial : public QObject
 {
@@ -30,9 +31,25 @@ public slots:
     void photocellSet(const QString& arg);
     //校准设置函数
     void calibration(const QString& arg);
+    //动态校准
+    void dynamic_cal();
 
     //处理数据函数
     void readData();
+
+    //获取可用端口
+    QList<QString> availablePort();
+
+    //重新设置com端口
+    void resetPortName(const QString& name);
+
+    //两点拟合
+    void linear();
+    //牛顿拟合
+    void newton();
+
+    //系统调零
+    void zeroSetting(const QString& arg);
 
 private:
     QSerialPort* serial;

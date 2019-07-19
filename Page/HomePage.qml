@@ -1,10 +1,8 @@
 import QtQuick 2.12
-import QtQuick.Window 2.2
+import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.3
 import QtCharts 2.3
-import Qt.labs.platform 1.1
-import QtQuick.Layouts 1.12
 
 Page{
     id: homePage
@@ -183,7 +181,7 @@ Page{
                     id: element1
                     width: implicitWidth
                     height: implicitHeight
-                    text: qsTr("r/min")
+                    text: qsTr("m/min")
                     anchors.horizontalCenterOffset: 0
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
@@ -199,7 +197,7 @@ Page{
             id: max
             width: implicitWidth
             height: (speed_panel.height-30)/4
-            color: "#8999a4"
+            color: "#515151"
             text: qsTr("上限值")
             anchors.top: speed_panel.bottom
             anchors.topMargin: 40
@@ -216,7 +214,7 @@ Page{
             id: min
             width: implicitWidth
             height: max.height
-            color: "#8999a4"
+            color: "#515151"
             text: qsTr("下限值")
             anchors.top: max.bottom
             anchors.topMargin: 30
@@ -232,7 +230,7 @@ Page{
             id: speed
             width: implicitWidth
             height: max.height
-            color: "#90989d"
+            color: "#515151"
             text: qsTr("电机速度")
             anchors.top: min.bottom
             anchors.topMargin: 30
@@ -280,11 +278,11 @@ Page{
             id: speedSpinBox
             height: 40
             width: 120
-            stepSize: 100
+            stepSize: 10
             anchors.verticalCenter: speed.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 10
-            to: 4000
+            to: 140
             wheelEnabled: true
             editable: true
             font.family: roboto_regular.name
@@ -293,7 +291,7 @@ Page{
                 //如果还未启动，则不需要播放动画和显示电机速度
                 if(start_button.mycheck === true){
                     speed_value.text = String(speedSpinBox.value)
-                    var deg = Math.PI*2*speedSpinBox.value/4000
+                    var deg = Math.PI*2*speedSpinBox.value/140
                     timer.startAngle = timer.lastFrameAngle //按键按下，从此刻重新开始动画
                     timer.loops = 100 //把时间轴置0
                     timer.startAngle = timer.lastFrameAngle //上帧度数作为新动画的开始
@@ -328,6 +326,9 @@ Page{
             anchors.leftMargin: 10
             anchors.top: calibrationButton_0g.bottom
             anchors.topMargin: 10
+            font.family: roboto_regular.name
+            Material.background: Material.Blue
+            Material.elevation: 0
             onClicked: {
                 //将数据绑定的变量置零
                 control_panel.sum_number = 0
@@ -347,21 +348,24 @@ Page{
                 //将曲线图置零
                 line.clear()
                 axisX.max = 10
+                axisY.max = 50
+                axisY.min = 0
                 chart.pointX = 0
             }
         }
 
         Button {
             property bool mycheck: false
+            width: 120
             height: 48
 
             id: start_button
             text: qsTr("启动")
-            anchors.left: photoCell_button.left
+            anchors.bottom: speed_panel.bottom
+            anchors.bottomMargin: 0
             anchors.leftMargin: 0
-            anchors.right: photoCell_button.right
-            anchors.rightMargin: 0
-            anchors.top: photoCell_button.bottom
+            anchors.right: parent.right
+            anchors.rightMargin: 10
             anchors.topMargin: 10
             font.pointSize: 10
             spacing: 4
@@ -372,7 +376,7 @@ Page{
             onClicked: {
                 if(start_button.mycheck === false){
 
-                    var deg = Math.PI*2*speedSpinBox.value/4000
+                    var deg = Math.PI*2*speedSpinBox.value/140
                     timer.startAngle = timer.lastFrameAngle //按键按下，从此刻重新开始动画
                     timer.loops = 100 //把时间轴置0
                     timer.startAngle = timer.lastFrameAngle //上帧度数作为新动画的开始
@@ -419,6 +423,9 @@ Page{
             anchors.leftMargin: 10
             anchors.top: speedSpinBox.bottom
             anchors.topMargin: 20
+            font.family: roboto_regular.name
+            Material.background: Material.Blue
+            Material.elevation: 0
             onClicked: {
                 readSerial.calibration("200")
             }
@@ -432,6 +439,9 @@ Page{
             anchors.leftMargin: 10
             anchors.top: calibrationButton_200g.bottom
             anchors.topMargin: 10
+            font.family: roboto_regular.name
+            Material.background: Material.Blue
+            Material.elevation: 0
             onClicked: {
                 readSerial.calibration("0")
             }
@@ -448,20 +458,80 @@ Page{
             source: "qrc:/Font/Roboto-Regular.ttf"
         }
 
-        Switch {
-            id: photoCell_button
-            x: 69
-            text: qsTr("双光电模式")
-            anchors.top: control_title.bottom
-            anchors.topMargin: 10
+        Button {
+            id: dynamic_cal
+            x: 128
+            width: 100
+            height: 48
+            text: qsTr("动态校准")
+            anchors.top: speedSpinBox.bottom
+            anchors.topMargin: 20
             anchors.right: parent.right
             anchors.rightMargin: 10
+            font.family: roboto_regular.name
+            Material.background: Material.Blue
+            Material.elevation: 0
+            onClicked: {
+                readSerial.dynamic_cal()
+            }
+        }
+
+        RadioButton {
+            id: single_photocell
+            x: 160
+            width: 100
+            height: 48
+            text: qsTr("单光电")
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.top: double_photocell.bottom
+            anchors.topMargin: 10
+            onCheckedChanged: {
+                if(checked === true){
+                    readSerial.photocellSet("single")
+                    console.log("single")
+                }
+            }
+        }
+
+        RadioButton {
+            id: double_photocell
+            x: 150
+            width: 100
+            text: qsTr("双光电")
+            checked: true
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.top: dynamic_cal.bottom
+            anchors.topMargin: 10
             onCheckedChanged: {
                 if(checked === true){
                     readSerial.photocellSet("double")
+                    console.log("double")
+                }
+            }
+
+        }
+
+        Switch {
+            id: fitting_button
+            height: 48
+            text: qsTr("两点拟合")
+            anchors.left: start_button.left
+            anchors.leftMargin: 0
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.top: control_title.bottom
+            anchors.topMargin: 10
+
+            onCheckedChanged: {
+                if(checked === true){
+                    readSerial.newton()
+                    fitting_button.text = "牛顿拟合"
                 }
                 else{
-                    readSerial.photocellSet("single")
+                    readSerial.linear()
+                    fitting_button.text = "两点拟合"
                 }
             }
         }
@@ -506,7 +576,7 @@ Page{
         anchors.bottomMargin: 566
         anchors.top: parent.top
         anchors.topMargin: 15
-        title: qsTr("Hello")
+        title: qsTr("重量")
 
 
         MouseArea{
@@ -559,7 +629,6 @@ Page{
             useOpenGL:true
             axisX:  axisX
             axisY:  axisY
-            name: "SplineSeries"
             objectName: "line"
         }
     }
@@ -631,11 +700,9 @@ Page{
                         anchors.left: dataIcon.right
                         anchors.leftMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        Layout.fillWidth: true
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignHCenter
                         font.family: "Courier"
-                        Layout.fillHeight: true
                         font.pixelSize: 12
                     }
 
@@ -648,12 +715,6 @@ Page{
                         anchors.topMargin: 5
                         anchors.left: parent.left
                         anchors.leftMargin: 90
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                        Layout.preferredHeight: 32
-                        Layout.preferredWidth: 32
-                        Layout.maximumHeight: 65535
-                        Layout.maximumWidth: 65535
-                        Layout.fillHeight: false
                         fillMode: Image.PreserveAspectFit
                         source: icon_source
                     }
@@ -670,14 +731,8 @@ Page{
                         anchors.topMargin: 10
                         anchors.right: parent.right
                         anchors.rightMargin: 10
-                        Layout.minimumHeight: 48
-                        Layout.minimumWidth: 48
-                        Layout.preferredHeight: 48
-                        Layout.preferredWidth: 48
-                        Layout.fillHeight: true
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignHCenter
-                        Layout.fillWidth: true
                         font.pixelSize: 12
                     }
                 }
@@ -685,49 +740,49 @@ Page{
                 model: ListModel{
                     id:moreInfo_model
                     ListElement{
-                        background_color:"white"
+                        background_color:"#e6e6e6"
                         data_name:"总数"
                         data_value:"0"
                         icon_source:""
                         unit_name:"个"
                     }
                     ListElement{
-                        background_color:"grey"
+                        background_color:"#cdcdcd"
                         data_name:"平均值"
                         data_value:"0"
                         icon_source:""
                         unit_name:"g"
                     }
                     ListElement{
-                        background_color:"white"
+                        background_color:"#e6e6e6"
                         data_name:"最大值"
                         data_value:"0"
                         icon_source:""
                         unit_name:"g"
                     }
                     ListElement{
-                        background_color:"grey"
+                        background_color:"#cdcdcd"
                         data_name:"最小值"
                         data_value:"0"
                         icon_source:""
                         unit_name:"g"
                     }
                     ListElement{
-                        background_color:"white"
+                        background_color:"#e6e6e6"
                         data_name:"合格率"
                         data_value:"100"
                         icon_source:""
                         unit_name:"%"
                     }
                     ListElement{
-                        background_color:"grey"
+                        background_color:"#cdcdcd"
                         data_name:"不合格数"
                         data_value:"0"
                         icon_source:""
                         unit_name:"个"
                     }
                     ListElement{
-                        background_color:"white"
+                        background_color:"#e6e6e6"
                         data_name:"合格数"
                         data_value:"0"
                         icon_source:""
@@ -740,7 +795,6 @@ Page{
 
     Component.onCompleted:{
         readSerial.dataAvailable.connect(addData)
-        readSerial.start("com4")
     }
 
     function addData(data){
@@ -761,3 +815,11 @@ Page{
     }
 }
 
+
+
+
+
+/*##^## Designer {
+    D{i:24;anchors_y:367}D{i:25;anchors_y:367}D{i:26;anchors_x:150;anchors_y:483}D{i:27;anchors_width:100;anchors_x:150;anchors_y:425}
+}
+ ##^##*/
