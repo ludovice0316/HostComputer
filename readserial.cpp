@@ -2,6 +2,7 @@
 #include<QDebug>
 #include<QThread>
 
+
 ReadSerial::ReadSerial(QObject *parent) : QObject(parent)
 {
     serial = new QSerialPort(this);
@@ -13,6 +14,9 @@ ReadSerial::ReadSerial(QObject *parent) : QObject(parent)
     serial->setFlowControl(QSerialPort::NoFlowControl);//设置为无流控制
     connect(serial,SIGNAL(readyRead()),this,SLOT(readData()));
     container = new QVector<int>;
+
+    //初始port为空
+    port = "";
 }
 
 void ReadSerial::readData(){
@@ -130,11 +134,17 @@ QList<QString> ReadSerial::availablePort(){
     return list;
 }
 
-void ReadSerial::resetPortName(const QString& name){
+bool ReadSerial::resetPortName(const QString& name){
     serial->close();
     serial->setPortName(name);
+    port = name;
     if(!serial->open(QIODevice::ReadWrite)){
         qDebug()<<"Failed to open ReadSerial"<<endl;
+        port = "";
+        return false;
+    }
+    else {
+        return true;
     }
 }
 
@@ -170,3 +180,8 @@ void ReadSerial::zeroSetting(const QString& arg){
     cmd[4] = x%16+(x/16)%16*16;cmd[5] = 0xff;
     serial->write(cmd);
 }
+
+QString ReadSerial::connectedPort(){
+    return port;
+}
+

@@ -5,6 +5,7 @@
 #include<QVector>
 #include<QSerialPort>
 #include <QSerialPortInfo>
+#include<QFile>
 
 class ReadSerial : public QObject
 {
@@ -40,8 +41,11 @@ public slots:
     //获取可用端口
     QList<QString> availablePort();
 
+    //获取当前连接到的端口号
+    QString connectedPort();
+
     //重新设置com端口
-    void resetPortName(const QString& name);
+    bool resetPortName(const QString& name);
 
     //两点拟合
     void linear();
@@ -52,6 +56,7 @@ public slots:
     void zeroSetting(const QString& arg);
 
 private:
+    QString port;
     QSerialPort* serial;
     QVector<int>* container;
     QByteArray tempContainer;

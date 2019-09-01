@@ -23,6 +23,9 @@ WriteSerial::WriteSerial(QObject *parent) : QObject(parent)
     speedTimer = new QTimer(this);
     speedTimer->setInterval(350);
     connect(speedTimer,&QTimer::timeout,this,&WriteSerial::speedTimerStart);
+
+    //初始port为空
+    port = "";
 }
 
 WriteSerial::~WriteSerial(){
@@ -313,10 +316,20 @@ void WriteSerial::sortingSpeed(const QString& speed){
     }
 }
 
-void WriteSerial::resetPortName(const QString& name){
+bool WriteSerial::resetPortName(const QString& name){
     serial->close();
     serial->setPortName(name);
+    port = name;
     if(!serial->open(QIODevice::ReadWrite)){
         qDebug()<<"Failed to open WriteSerial"<<endl;
+        port = "";
+        return false;
     }
+    else {
+        return true;
+    }
+}
+
+QString WriteSerial::connectedPort(){
+    return port;
 }

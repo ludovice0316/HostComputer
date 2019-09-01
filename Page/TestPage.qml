@@ -106,7 +106,7 @@ Rectangle{
 2、系统调零参数Vz=(Vs-1.2mv)*100
 ")
             anchors.verticalCenterOffset: 0
-anchors.horizontalCenterOffset: 0
+            anchors.horizontalCenterOffset: 0
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
             font.pixelSize: 12

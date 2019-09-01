@@ -561,70 +561,116 @@ Page{
 
     }
 
+    ComboBox {
+        id: measurePort_combo
+        model: ListModel {
+            id: measurePort_model
+        }
+        displayText: readSerial.connectedPort()
+        width: 120
+        anchors.left: chart.right
+        anchors.leftMargin: 70
+        anchors.top: parent.top
+        anchors.topMargin: 15
+        onActivated: {
+            if(readSerial.resetPortName(currentText)){
+                measurePort_combo.displayText = currentText
+            }
+            else{
+                measurePort_combo.displayText = ""
+            }
+        }
+    }
+
+    ComboBox {
+        id: speedPort_combo
+        model: ListModel {
+            id: speedPort_model
+        }
+        displayText: writeSerial.connectedPort()
+        width: 120
+        anchors.left: chart.right
+        anchors.leftMargin: 70
+        anchors.verticalCenter: chart.verticalCenter
+        onActivated: {
+            if(writeSerial.resetPortName(currentText)){
+                speedPort_combo.displayText = currentText
+            }
+            else{
+                speedPort_combo.displayText = ""
+            }
+        }
+    }
+
+    SpinBox {
+        id: zeroSetting
+        y: 161
+        width: 120
+        height: 48
+        anchors.left: chart.right
+        anchors.leftMargin: 70
+        anchors.bottom: chart.bottom
+        anchors.bottomMargin: 0
+        editable: true
+        stepSize: 10
+        from:0
+        to: 2100
+        onValueChanged: {
+            readSerial.zeroSetting(String(zeroSetting.value))
+        }
+
+        hoverEnabled: true
+
+        ToolTip.timeout: 8000
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("操作流程：
+1、机器静止状态下，使用4位半万用表测量传感器S+与S-两端电压值得Vs；
+2、系统调零参数Vz=(Vs-1.2mv)*100")
+    }
+
     ChartView{
         id:chart
+        legend.visible: false
 
         property real pointX: 0
         property real pointY: 0
 
         objectName: "chart"
         anchors.right: parent.right
-        anchors.rightMargin: 10
+        anchors.rightMargin: 200
         anchors.left: control_panel.right
         anchors.leftMargin: 20
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 566
+        anchors.bottomMargin: 705
         anchors.top: parent.top
         anchors.topMargin: 15
         title: qsTr("重量")
 
-
-        MouseArea{
-            anchors.fill: parent
-            onClicked: {
-                focus = true
-            }
-        }
-
         antialiasing: true
 
 
-        animationOptions:ChartView.NoAnimation
+        animationOptions:ChartView.AllAnimations
         backgroundRoundness: 10
-
-
-        focus: true
-        Keys.onUpPressed: {
-            chart.scrollUp(50)
-        }
-        Keys.onDownPressed: {
-            chart.scrollDown(50)
-        }
-        Keys.onLeftPressed: {
-            chart.scrollLeft(50)
-        }
-        Keys.onRightPressed: {
-            chart.scrollRight(50)
-        }
 
 
         ValueAxis{
             id: axisX
             min: 0
             max: 10
-            tickCount: 10
+            tickCount: 6
+            labelFormat: "%d"
 
         }
         ValueAxis{
             id: axisY
-            min: -10
-            max: 10
-            tickCount: 10
-
+            min: -5
+            max: 15
+            tickCount: 5
+            labelFormat: "%d"
         }
 
 
-        LineSeries {
+        LineSeries{
             id:line
             useOpenGL:true
             axisX:  axisX
@@ -673,6 +719,18 @@ Page{
                     width: parent.width
                     height: 40
                     color: background_color
+
+                    MouseArea{
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: {
+                            dataElement.color = "#448aff"
+                        }
+                        onExited: {
+                            dataElement.color = background_color
+                        }
+
+                    }
 
                     Text {
                         id: dataName
@@ -740,49 +798,49 @@ Page{
                 model: ListModel{
                     id:moreInfo_model
                     ListElement{
-                        background_color:"#e6e6e6"
+                        background_color:"#f8f8f8"
                         data_name:"总数"
                         data_value:"0"
                         icon_source:""
                         unit_name:"个"
                     }
                     ListElement{
-                        background_color:"#cdcdcd"
+                        background_color:"#f1f1f1"
                         data_name:"平均值"
                         data_value:"0"
                         icon_source:""
                         unit_name:"g"
                     }
                     ListElement{
-                        background_color:"#e6e6e6"
+                        background_color:"#f8f8f8"
                         data_name:"最大值"
                         data_value:"0"
                         icon_source:""
                         unit_name:"g"
                     }
                     ListElement{
-                        background_color:"#cdcdcd"
+                        background_color:"#f1f1f1"
                         data_name:"最小值"
                         data_value:"0"
                         icon_source:""
                         unit_name:"g"
                     }
                     ListElement{
-                        background_color:"#e6e6e6"
+                        background_color:"#f8f8f8"
                         data_name:"合格率"
                         data_value:"100"
                         icon_source:""
                         unit_name:"%"
                     }
                     ListElement{
-                        background_color:"#cdcdcd"
+                        background_color:"#f1f1f1"
                         data_name:"不合格数"
                         data_value:"0"
                         icon_source:""
                         unit_name:"个"
                     }
                     ListElement{
-                        background_color:"#e6e6e6"
+                        background_color:"#f8f8f8"
                         data_name:"合格数"
                         data_value:"0"
                         icon_source:""
@@ -793,9 +851,49 @@ Page{
         }
     }
 
+    Label {
+        id: label
+        width:implicitWidth
+        height: implicitHeight
+        text: qsTr("测量串口")
+        anchors.right: measurePort_combo.left
+        anchors.rightMargin: 10
+        anchors.verticalCenter: measurePort_combo.verticalCenter
+    }
+
+    Label {
+        id: label1
+        width: implicitWidth
+        height: implicitHeight
+        text: qsTr("调速串口")
+        anchors.verticalCenter: speedPort_combo.verticalCenter
+        anchors.right: speedPort_combo.left
+        anchors.rightMargin: 10
+    }
+
+    Label {
+        id: label2
+        width: implicitWidth
+        height: implicitHeight
+        text: qsTr("系统调零")
+        anchors.verticalCenter: zeroSetting.verticalCenter
+        anchors.right: zeroSetting.left
+        anchors.rightMargin: 10
+
+    }
+
+
+
+
     Component.onCompleted:{
         readSerial.dataAvailable.connect(addData)
+        var list = readSerial.availablePort()
+        for(var i=0;i<list.length;i++){
+            measurePort_model.append({text:list[i]})
+            speedPort_model.append({text:list[i]})
+        }
     }
+
 
     function addData(data){
         var value = data
@@ -804,10 +902,10 @@ Page{
             axisX.max *= 2
         }
         if(chart.pointY>axisY.max){
-            axisY.max += 20
+            axisY.max = (chart.pointY/10+1)*10
         }
         if(chart.pointY<axisY.min){
-            axisY.min -= 20
+            axisY.min = (chart.pointY/10-1)*10
         }
 
         line.append(chart.pointX,chart.pointY)
@@ -819,7 +917,38 @@ Page{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*##^## Designer {
     D{i:24;anchors_y:367}D{i:25;anchors_y:367}D{i:26;anchors_x:150;anchors_y:483}D{i:27;anchors_width:100;anchors_x:150;anchors_y:425}
+D{i:29;anchors_x:927}D{i:28;anchors_x:627;anchors_y:0}D{i:30;anchors_x:927}D{i:32;anchors_x:927}
 }
  ##^##*/

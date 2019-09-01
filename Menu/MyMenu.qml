@@ -61,7 +61,7 @@ Rectangle{
                 }
 
                 ListElement {
-                    source:"qrc:/Page/TestPage.qml"
+                    source:"qrc:/Page/HistoryData.qml"
                     content:"历史数据"
                 }
             }

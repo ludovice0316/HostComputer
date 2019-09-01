@@ -15,5 +15,6 @@
         <file>Page/TestPage.qml</file>
         <file>Icon/Close.png</file>
         <file>Icon/return.png</file>
+        <file>Page/HistoryData.qml</file>
     </qresource>
 </RCC>

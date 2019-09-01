@@ -50,9 +50,13 @@ public slots:
 
 
     //重新设置com端口
-    void resetPortName(const QString& name);
+    bool resetPortName(const QString& name);
+
+    //获取当前连接到的端口号
+    QString connectedPort();
 
 private:
+    QString port;
     QSerialPort* serial;
     QTimer* startTimer;
     QTimer* stopTimer;
@@ -61,8 +65,6 @@ private:
     int speedCount =0;
     int startCount = 0;
     int stopCount = 0;
-
-
 };
 
 #endif // SERIAL_H

@@ -1,4 +1,4 @@
-QT += quick serialport widgets core charts
+QT += quick serialport widgets core
 CONFIG += c++11
 CONFIG += resources_big
 # The following define makes your compiler emit warnings if you use
@@ -11,7 +11,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-RC_ICONS = exe_icon.ico
 
 SOURCES += \
     main.cpp \
@@ -22,10 +21,10 @@ RESOURCES += \
     resources.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+QML_IMPORT_PATH +=
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
-QML_DESIGNER_IMPORT_PATH =
+QML_DESIGNER_IMPORT_PATH +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -46,7 +45,8 @@ DISTFILES += \
     qtquickcontrols2.conf \
     Page/HomePage.qml \
     Page/TestPage.qml \
-    Page/TestPage.qml
+    Page/TestPage.qml \
+    Page/HistoryData.qml
 
 HEADERS += \
     writeserial.h \

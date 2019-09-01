@@ -10,7 +10,7 @@ Window {
     width: 1080
     height: 640
     title: qsTr("Hello World")
-    flags: Qt.FramelessWindowHint
+    flags: Qt.FramelessWindowHint||Qt.Window
 
 
     //添加字体
