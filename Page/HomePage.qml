@@ -274,7 +274,6 @@ Page{
         }
 
         SpinBox {
-
             id: speedSpinBox
             height: 40
             width: 120
@@ -534,6 +533,35 @@ Page{
                     fitting_button.text = "两点拟合"
                 }
             }
+        }
+
+        RangeSlider {
+            id: rangeSlider
+            x: 10
+            y: 537
+            width: 250
+            height: 48
+            first.value: 0.25
+            second.value: 0.75
+
+            Rectangle {
+                id: rectangle
+                x: 125
+                y: -102
+                width: 30
+                height: 30
+                color: "#e56464"
+
+                Label {
+                    id: label3
+                    text: qsTr("30")
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pointSize: 11
+                    anchors.fill: parent
+                }
+            }
+
         }
 
 
@@ -947,8 +975,15 @@ Page{
 
 
 
+
+
+
+
+
+
 /*##^## Designer {
     D{i:24;anchors_y:367}D{i:25;anchors_y:367}D{i:26;anchors_x:150;anchors_y:483}D{i:27;anchors_width:100;anchors_x:150;anchors_y:425}
-D{i:29;anchors_x:927}D{i:28;anchors_x:627;anchors_y:0}D{i:30;anchors_x:927}D{i:32;anchors_x:927}
+D{i:30;anchors_x:-125;anchors_y:102}D{i:28;anchors_x:627;anchors_y:0}D{i:32;anchors_x:927}
+D{i:31;anchors_x:927;anchors_y:0}D{i:34;anchors_x:927}D{i:33;anchors_x:927}D{i:35;anchors_x:927}
 }
  ##^##*/

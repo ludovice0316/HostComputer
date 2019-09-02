@@ -3,6 +3,7 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 
 Page{
+    id:historyData
     SwipeView{
         id:swipeView
         anchors.topMargin: 0
@@ -12,11 +13,11 @@ Page{
         currentIndex: tabBar.currentIndex
 
         Item{
-            id:table
+            id:table_static
             width: swipeView.width
             height: swipeView.height
             Rectangle {
-                id: title
+                id: title_static
                 x: 0
                 width: parent.width*0.8
                 height: parent.height*0.2
@@ -38,16 +39,16 @@ Page{
             }
 
             Rectangle {
-                id: header
+                id: header_static
                 width: parent.width*0.8
                 height: 40
                 color: "#2980b9"
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: title.bottom
+                anchors.top: title_static.bottom
                 anchors.topMargin: 0
 
                 Rectangle {
-                    id: header_index
+                    id: header_index_static
                     width: parent.width/3
                     height: parent.height
                     color: "transparent"
@@ -67,11 +68,11 @@ Page{
                 }
 
                 Rectangle {
-                    id: header_weight
+                    id: header_weight_static
                     width: parent.width/3
                     height: parent.height
                     color: "transparent"
-                    anchors.left: header_index.right
+                    anchors.left: header_index_static.right
                     anchors.leftMargin: 0
                     anchors.top: parent.top
                     anchors.topMargin: 0
@@ -86,12 +87,13 @@ Page{
                     }
                 }
 
+
                 Rectangle {
-                    id: header_date
+                    id: header_date_static
                     width: parent.width/3
                     height: parent.height
                     color: "transparent"
-                    anchors.left: header_weight.right
+                    anchors.left: header_weight_static.right
                     anchors.leftMargin: 0
                     anchors.top: parent.top
                     anchors.topMargin: 0
@@ -115,15 +117,20 @@ Page{
                 border.width: 0
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 0
-                anchors.top: header.bottom
+                anchors.top: header_static.bottom
                 anchors.topMargin: 0
 
+                ListModel{
+                    id:staticModel
+                }
+
                 ListView{
-                    id:listView
+                    id:listView_static
+
                     anchors.fill: parent
-                    //model: xmlModel
+                    model:staticModel
                     delegate:Rectangle{
-                        id: record
+                        id: record_static
                         width: parent.width
                         height: 40
                         anchors.left: parent.left
@@ -193,11 +200,38 @@ Page{
                             }
                         }
                     }
+
+                    Component.onCompleted: {
+                        readSerial.initListView(true,20)
+                        var staticWeight = readSerial.getWeightData();
+                        var staticDate = readSerial.getDateData();
+                        for(var i=0;i<staticWeight.length;i++){
+                            staticModel.append({"weight":staticWeight[i],"date":staticDate[i]})
+                        }
+                    }
+
+                    onDragEnded: {
+                        if(contentY<0){
+                            readSerial.updateNewData(true,20);
+                            var newWeight = readSerial.getWeightData();
+                            var newDate = readSerial.getDateData();
+                            for(var i=0;i<newWeight.length;i++){
+                                staticModel.insert(i,{"weight":newWeight[i],"date":newDate[i]})
+                            }
+                        }
+                        else if(contentY>this.count*40-listView_static.height){
+
+                            readSerial.updateOldData(true,20);
+                            var oldWeight = readSerial.getWeightData();
+                            var oldDate = readSerial.getDateData();
+                            for(var j=0;j<oldWeight.length;j++){
+                                staticModel.append({"weight":oldWeight[j],"date":oldDate[j]})
+                            }
+                        }
+                    }
                 }
             }
         }
-
-
 
         Item{
             id:table_dynamic
@@ -306,10 +340,14 @@ Page{
                 anchors.top: header_dynamic.bottom
                 anchors.topMargin: 0
 
+                ListModel{
+                    id:dynamicModel
+                }
+
                 ListView{
                     id:listView_dynamic
                     anchors.fill: parent
-                    //model: xmlModel_dynamic
+                    model: dynamicModel
                     delegate:Rectangle{
                         id: record_dynamic
                         width: parent.width
@@ -378,6 +416,34 @@ Page{
                                 horizontalAlignment: Text.AlignHCenter
                                 anchors.fill: parent
                                 font.pixelSize: 12
+                            }
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        readSerial.initListView(false,20)
+                        var dynamicWeight = readSerial.getWeightData();
+                        var dynamicDate = readSerial.getDateData();
+                        for(var j=0;j<dynamicWeight.length;j++){
+                            dynamicModel.append({"weight":dynamicWeight[j],"date":dynamicDate[j]})
+                        }
+                    }
+
+                    onDragEnded: {
+                        if(contentY<0){
+                            readSerial.updateNewData(false,20);
+                            var newWeight = readSerial.getWeightData();
+                            var newDate = readSerial.getDateData();
+                            for(var i=0;i<newWeight.length;i++){
+                                dynamicModel.insert(i,{"weight":newWeight[i],"date":newDate[i]})
+                            }
+                        }
+                        else if(contentY>this.count*40-listView_static.height){
+                            readSerial.updateOldData(false,20);
+                            var oldWeight = readSerial.getWeightData();
+                            var oldDate = readSerial.getDateData();
+                            for(var j=0;j<oldWeight.length;j++){
+                                dynamicModel.append({"weight":oldWeight[j],"date":oldDate[j]})
                             }
                         }
                     }

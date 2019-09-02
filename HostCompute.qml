@@ -74,6 +74,8 @@ Window {
             anchors.rightMargin: 0
 
             onClicked: {
+                readSerial.saveStaticData()
+                readSerial.saveDynamicData()
                 window.close()
             }
 

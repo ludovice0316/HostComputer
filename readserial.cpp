@@ -17,6 +17,68 @@ ReadSerial::ReadSerial(QObject *parent) : QObject(parent)
 
     //初始port为空
     port = "";
+
+    //打开静态数据json文件
+    QFile staticFile("./staticData.json");
+    QFile dynamicFile("./dynamicData.json");
+    //判断是否成功打开文件
+    if(!staticFile.open(QIODevice::ReadWrite))
+    {
+     qDebug() << "打开staticData.json失败";
+     return;
+    }
+    if(!dynamicFile.open(QIODevice::ReadWrite)){
+        qDebug() << "打开dynamicData.json失败";
+        return;
+    }
+    //如果文件为空，向这个文件中添加一个json数组
+    if(staticFile.size() == 0){
+        QJsonArray initArray;
+        QJsonDocument jsonDoc;
+        jsonDoc.setArray(initArray);
+        staticFile.write(jsonDoc.toJson());
+        staticFile.seek(0);
+    }
+    if(dynamicFile.size() == 0){
+        QJsonArray initArray;
+        QJsonDocument jsonDoc;
+        jsonDoc.setArray(initArray);
+        dynamicFile.write(jsonDoc.toJson());
+        dynamicFile.seek(0);
+    }
+    //读取json文件中的数据，并用其初始化JsonDocument
+    QByteArray staticData = staticFile.readAll();
+    QByteArray dynamicData = dynamicFile.readAll();
+
+
+    staticFile.close();
+    dynamicFile.close();
+
+    QJsonParseError staticError;
+    QJsonParseError dynamicError;
+
+    staticDoc = new QJsonDocument(QJsonDocument::fromJson(staticData,&staticError));
+    dynamicDoc = new QJsonDocument(QJsonDocument::fromJson(dynamicData,&dynamicError));
+
+
+    if(staticError.error != QJsonParseError::NoError){
+        qDebug()<<"staticJson error"<<staticError.error<<endl;
+    }
+    if(dynamicError.error != QJsonParseError::NoError){
+        qDebug()<<"dynamicJson error"<<dynamicError.error<<endl;
+    }
+
+    staticHeadArray = new QJsonArray;
+    dynamicHeadArray = new QJsonArray;
+
+    staticBodyArray = new QJsonArray;
+    dynamicBodyArray = new QJsonArray;
+
+    staticTailArray = new QJsonArray(staticDoc->array());
+    dynamicTailArray = new QJsonArray(dynamicDoc->array());
+
+    weight = new QVector<double>;
+    date = new QVector<QString>;
 }
 
 void ReadSerial::readData(){
@@ -44,8 +106,17 @@ void ReadSerial::readData(){
     //把这次截断的数据流按回车换行符做分割
     list = buf.split('\n');
     list.pop_back();
-    for (int i =0;i<list.size();i++) {
-        emit dataAvailable(list[i].toFloat());
+    if(isStatic){
+        for (int i =0;i<list.size();i++) {
+            insertInStatic(list[i].toDouble());
+            emit dataAvailable(list[i].toFloat());
+        }
+    }
+    else {
+        for (int i =0;i<list.size();i++) {
+            insertInDynamic(list[i].toDouble());
+            emit dataAvailable(list[i].toFloat());
+        }
     }
 }
 
@@ -64,7 +135,7 @@ void ReadSerial::stop(){
 
 void ReadSerial::beltStart(){
     QByteArray cmd;         //皮带已启动命令
-
+    isStatic = false;
     cmd[0]=0x01;cmd[1]=0x05;
     cmd[2]=0x00;cmd[3]=0x00;
     cmd[4]=0x01;cmd[5]=0xff;
@@ -73,7 +144,7 @@ void ReadSerial::beltStart(){
 
 void ReadSerial::beltStop(){
     QByteArray cmd;         //皮带已停止命令
-
+    isStatic = true;
     cmd[0]=0x01;cmd[1]=0x05;
     cmd[2]=0x00;cmd[3]=0x00;
     cmd[4]=0x00;cmd[5]=0xff;
@@ -185,3 +256,203 @@ QString ReadSerial::connectedPort(){
     return port;
 }
 
+void ReadSerial::insertInStatic(double weight){
+    QJsonObject obj;
+    obj.insert("weight",weight);
+    obj.insert("date",QDateTime::currentDateTime().toString());
+    QJsonValue value(obj);
+    staticHeadArray->push_front(value);
+}
+
+void ReadSerial::insertInDynamic(double weight){
+    QJsonObject obj;
+    obj.insert("weight",weight);
+    obj.insert("date",QDateTime::currentDateTime().toString());
+    QJsonValue value(obj);
+    dynamicHeadArray->push_front(value);
+}
+
+
+void ReadSerial::saveStaticData(){
+    QFile file("./staticData.json");
+    file.open(QIODevice::ReadWrite|QIODevice::Truncate);
+    for (int i=0;i<staticBodyArray->size();i++) {
+        staticHeadArray->append((*staticBodyArray)[i]);
+    }
+    for (int i=0;i<staticTailArray->size();i++) {
+        staticHeadArray->append((*staticTailArray)[i]);
+
+    }
+    staticDoc->setArray(*staticHeadArray);
+    file.write(staticDoc->toJson());
+}
+
+
+void ReadSerial::saveDynamicData(){
+    QFile file("./dynamicData.json");
+    file.open(QIODevice::ReadWrite|QIODevice::Truncate);
+    for (int i=0;i<dynamicBodyArray->size();i++) {
+        dynamicHeadArray->append((*dynamicBodyArray)[i]);
+    }
+    for (int i=0;i<dynamicTailArray->size();i++) {
+        dynamicHeadArray->append((*dynamicTailArray)[i]);
+    }
+    dynamicDoc->setArray(*dynamicHeadArray);
+    file.write(dynamicDoc->toJson());
+}
+
+
+void ReadSerial::updateNewData(bool isStatic,int maxNum){
+
+    weight->clear();
+    date->clear();
+
+    int staticSize = staticHeadArray->size();
+    int dynamicSize = dynamicHeadArray->size();
+
+    //如果是需要更新静态数据
+    if(isStatic){
+        //如果tail中的静态数据大于maxNum个
+        if(staticHeadArray->size()>maxNum){
+            for (int i=0;i<maxNum;i++) {
+                weight->push_front(staticHeadArray->last().toObject().value("weight").toDouble());
+                date->push_front(staticHeadArray->last().toObject().value("date").toString());
+                staticBodyArray->push_front(staticHeadArray->last());
+                staticHeadArray->pop_back();
+            }
+        }
+        //如果tail中的静态数据不足maxNum个，就取tail中所有元素
+        else {
+            for (int i=0;i<staticSize;i++) {
+                weight->push_front(staticHeadArray->last().toObject().value("weight").toDouble());
+                date->push_front(staticHeadArray->last().toObject().value("date").toString());
+                staticBodyArray->push_front(staticHeadArray->last());
+                staticHeadArray->pop_back();
+            }
+        }
+    }
+    //如果是需要更新动态数据
+    else{
+        //如果tail中的动态数据大于maxNum个
+        if(dynamicHeadArray->size()>maxNum){
+            for (int i=0;i<maxNum;i++) {
+                weight->push_front(dynamicHeadArray->last().toObject().value("weight").toDouble());
+                date->push_front(dynamicHeadArray->last().toObject().value("date").toString());
+                dynamicBodyArray->push_front(dynamicHeadArray->last());
+                dynamicHeadArray->pop_back();
+            }
+        }
+        //如果tail中的动态数据不足maxNum个
+        else {
+            for (int i=0;i<dynamicSize;i++) {
+                weight->push_front(dynamicHeadArray->last().toObject().value("weight").toDouble());
+                date->push_front(dynamicHeadArray->last().toObject().value("date").toString());
+                dynamicBodyArray->push_front(dynamicHeadArray->last());
+                dynamicHeadArray->pop_back();
+            }
+        }
+    }
+}
+
+void ReadSerial::updateOldData(bool isStatic,int maxNum){
+
+    weight->clear();
+    date->clear();
+
+    int staticSize = staticTailArray->size();
+    int dynamicSize = dynamicTailArray->size();
+
+    //如果是需要更新静态数据
+    if(isStatic){
+        //如果tail中的静态数据大于maxNum个
+        if(staticTailArray->size()>maxNum){
+            for (int i=0;i<maxNum;i++) {
+                weight->push_back((*staticTailArray)[0].toObject().value("weight").toDouble());
+                date->push_back((*staticTailArray)[0].toObject().value("date").toString());
+                staticBodyArray->push_back((*staticTailArray)[0]);
+                staticTailArray->pop_front();
+            }
+        }
+        //如果tail中的静态数据不足maxNum个，就取tail中所有元素
+        else {
+            for (int i=0;i<staticSize;i++) {
+                weight->push_back((*staticTailArray)[0].toObject().value("weight").toDouble());
+                date->push_back((*staticTailArray)[0].toObject().value("date").toString());
+                staticBodyArray->push_back((*staticTailArray)[0]);
+                staticTailArray->pop_front();
+            }
+        }
+    }
+
+    //如果是需要更新动态数据
+    else {
+        //如果tail中的动态数据大于maxNum个
+        if(dynamicTailArray->size()>maxNum){
+            for (int i=0;i<maxNum;i++) {
+                weight->push_back((*dynamicTailArray)[0].toObject().value("weight").toDouble());
+                date->push_back((*dynamicTailArray)[0].toObject().value("date").toString());
+                dynamicBodyArray->push_back((*dynamicTailArray)[0]);
+                dynamicTailArray->pop_front();
+            }
+        }
+        //如果tail中的动态数据不足maxNum个
+        else {
+            for (int i=0;i<dynamicSize;i++) {
+                weight->push_back((*dynamicTailArray)[0].toObject().value("weight").toDouble());
+                date->push_back((*dynamicTailArray)[0].toObject().value("date").toString());
+                dynamicBodyArray->push_back((*dynamicTailArray)[0]);
+                dynamicTailArray->pop_front();
+            }
+        }
+    }
+}
+
+
+void ReadSerial::initListView(bool isStatic,int maxNum){
+    weight->clear();
+    date->clear();
+
+    int staticSize = staticBodyArray->size();
+    int dynamicSize = dynamicBodyArray->size();
+
+    if(isStatic){
+        if(staticBodyArray->size() == 0){
+            if(staticTailArray->size() ==0){
+                updateNewData(true,maxNum);
+            }
+            else{
+                updateOldData(true,maxNum);
+            }
+        }
+        else {
+            for (int i=0;i<staticSize;i++) {
+                weight->push_back((*staticBodyArray)[i].toObject().value("weight").toDouble());
+                date->push_back((*staticBodyArray)[i].toObject().value("date").toString());
+            }
+        }
+    }
+    else {
+        if(dynamicBodyArray->size() == 0){
+            if(dynamicTailArray->size() ==0){
+                updateNewData(false,maxNum);
+            }
+            else{
+                updateOldData(false,maxNum);
+            }
+        }
+        else {
+            for (int i=0;i<dynamicSize;i++) {
+                weight->push_back((*dynamicBodyArray)[i].toObject().value("weight").toDouble());
+                date->push_back((*dynamicBodyArray)[i].toObject().value("date").toString());
+            }
+        }
+    }
+}
+
+QVector<double> ReadSerial::getWeightData(){
+    return *weight;
+}
+
+QVector<QString> ReadSerial::getDateData(){
+    return *date;
+}
