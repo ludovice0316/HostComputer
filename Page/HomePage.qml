@@ -200,7 +200,7 @@ Page{
             color: "#515151"
             text: qsTr("上限值")
             anchors.top: speed_panel.bottom
-            anchors.topMargin: 40
+            anchors.topMargin: 20
             anchors.left: parent.left
             anchors.leftMargin: 10
             lineHeight: 0.8
@@ -217,7 +217,7 @@ Page{
             color: "#515151"
             text: qsTr("下限值")
             anchors.top: max.bottom
-            anchors.topMargin: 30
+            anchors.topMargin: 20
             anchors.left: parent.left
             anchors.leftMargin: 10
             horizontalAlignment: Text.AlignHCenter
@@ -233,7 +233,7 @@ Page{
             color: "#515151"
             text: qsTr("电机速度")
             anchors.top: min.bottom
-            anchors.topMargin: 30
+            anchors.topMargin: 20
             anchors.left: parent.left
             anchors.leftMargin: 10
             verticalAlignment: Text.AlignVCenter
@@ -318,13 +318,11 @@ Page{
 
         Button {
             id: clear_button
+            x: 160
+            y: 490
             width: 100
             height: 48
             text: qsTr("清空数据")
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.top: calibrationButton_0g.bottom
-            anchors.topMargin: 10
             font.family: roboto_regular.name
             Material.background: Material.Blue
             Material.elevation: 0
@@ -355,13 +353,15 @@ Page{
 
         Button {
             property bool mycheck: false
+            x: 140
+            y: 99
             width: 120
             height: 48
 
             id: start_button
             text: qsTr("启动")
             anchors.bottom: speed_panel.bottom
-            anchors.bottomMargin: 0
+            anchors.bottomMargin: 31
             anchors.leftMargin: 0
             anchors.right: parent.right
             anchors.rightMargin: 10
@@ -415,13 +415,10 @@ Page{
 
         Button {
             id: calibrationButton_200g
-            y: 265
+            x: 0
+            y: 490
             width: 100
             text: qsTr("200克校准")
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.top: speedSpinBox.bottom
-            anchors.topMargin: 20
             font.family: roboto_regular.name
             Material.background: Material.Blue
             Material.elevation: 0
@@ -432,12 +429,10 @@ Page{
 
         Button {
             id: calibrationButton_0g
+            x: 0
+            y: 441
             width: 100
             text: qsTr("零点校准")
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.top: calibrationButton_200g.bottom
-            anchors.topMargin: 10
             font.family: roboto_regular.name
             Material.background: Material.Blue
             Material.elevation: 0
@@ -459,14 +454,11 @@ Page{
 
         Button {
             id: dynamic_cal
-            x: 128
+            x: 160
+            y: 441
             width: 100
             height: 48
             text: qsTr("动态校准")
-            anchors.top: speedSpinBox.bottom
-            anchors.topMargin: 20
-            anchors.right: parent.right
-            anchors.rightMargin: 10
             font.family: roboto_regular.name
             Material.background: Material.Blue
             Material.elevation: 0
@@ -477,32 +469,33 @@ Page{
 
         RadioButton {
             id: single_photocell
-            x: 160
+            x: 162
+            y: 319
             width: 100
             height: 48
             text: qsTr("单光电")
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.top: double_photocell.bottom
-            anchors.topMargin: 10
             onCheckedChanged: {
                 if(checked === true){
                     readSerial.photocellSet("single")
                     console.log("single")
                 }
             }
+
+            RadioButton {
+                id: radioButton1
+                x: 0
+                y: 35
+                text: qsTr("牛顿拟合")
+            }
         }
 
         RadioButton {
             id: double_photocell
-            x: 150
+            x: 8
+            y: 319
             width: 100
             text: qsTr("双光电")
             checked: true
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.top: dynamic_cal.bottom
-            anchors.topMargin: 10
             onCheckedChanged: {
                 if(checked === true){
                     readSerial.photocellSet("double")
@@ -517,11 +510,11 @@ Page{
             height: 48
             text: qsTr("两点拟合")
             anchors.left: start_button.left
-            anchors.leftMargin: 0
+            anchors.leftMargin: 319
             anchors.right: parent.right
-            anchors.rightMargin: 10
+            anchors.rightMargin: -309
             anchors.top: control_title.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: 49
 
             onCheckedChanged: {
                 if(checked === true){
@@ -535,33 +528,11 @@ Page{
             }
         }
 
-        RangeSlider {
-            id: rangeSlider
-            x: 10
-            y: 537
-            width: 250
-            height: 48
-            first.value: 0.25
-            second.value: 0.75
-
-            Rectangle {
-                id: rectangle
-                x: 125
-                y: -102
-                width: 30
-                height: 30
-                color: "#e56464"
-
-                Label {
-                    id: label3
-                    text: qsTr("30")
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pointSize: 11
-                    anchors.fill: parent
-                }
-            }
-
+        RadioButton {
+            id: radioButton
+            x: 8
+            y: 353
+            text: qsTr("两点拟合")
         }
 
 
@@ -981,9 +952,13 @@ Page{
 
 
 
+
+
+
+
 /*##^## Designer {
-    D{i:24;anchors_y:367}D{i:25;anchors_y:367}D{i:26;anchors_x:150;anchors_y:483}D{i:27;anchors_width:100;anchors_x:150;anchors_y:425}
-D{i:30;anchors_x:-125;anchors_y:102}D{i:28;anchors_x:627;anchors_y:0}D{i:32;anchors_x:927}
-D{i:31;anchors_x:927;anchors_y:0}D{i:34;anchors_x:927}D{i:33;anchors_x:927}D{i:35;anchors_x:927}
+    D{i:24;anchors_y:367}D{i:25;anchors_y:367}D{i:27;anchors_x:150;anchors_y:483}D{i:28;anchors_width:100;anchors_x:150;anchors_y:425}
+D{i:31;anchors_x:927}D{i:30;anchors_x:927;anchors_y:0}D{i:33;anchors_x:927}D{i:32;anchors_x:927}
+D{i:34;anchors_x:927}D{i:39;anchors_y:270}
 }
  ##^##*/
