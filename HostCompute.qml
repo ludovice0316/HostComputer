@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
+import QtGraphicalEffects 1.12
 import "Menu"
 import "Page" as MyPage
 
@@ -12,15 +13,14 @@ Window {
     title: qsTr("Hello World")
     flags: Qt.FramelessWindowHint||Qt.Window
 
-
     //添加字体
     FontLoader{
         id:roboto_thin
         source: "qrc:/Font/Roboto-Thin.ttf"
     }
     FontLoader{
-        id:noto_thin
-        source: "qrc:/Font/NotoSansCJK-Thin.ttc"
+        id:noto_light
+        source: "qrc:/Font/NotoSansSC-Light.otf"
 
     }
     FontLoader{
@@ -30,10 +30,12 @@ Window {
 
     StackView {
         id: stackView
-        anchors.right: rectangle.right
-        anchors.top: rectangle.bottom
+        x: -259
         width: parent.width
         height: parent.height-rectangle.height
+        anchors.top: rectangle.bottom
+        anchors.topMargin: 0
+        anchors.horizontalCenter: parent.horizontalCenter
         initialItem: MyPage.HomePage{
         }
     }
@@ -43,14 +45,25 @@ Window {
         x: 0
         y: 0
         width: window.width
-        height: 56
-        color: "#03a9f4"
+        height: 40
+        color: "#2196f3"
+
+        LinearGradient {
+            anchors.fill: parent
+            start: Qt.point(0, 0)
+            end: Qt.point(window.width, 150)
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#3498db" }
+                GradientStop { position: 1.0; color: "#8e44ad" }
+            }
+        }
 
         MouseArea { //为窗口添加鼠标事件
             anchors.fill: parent
 
             acceptedButtons: Qt.LeftButton //只处理鼠标左键
             property point clickPos: "0,0"
+            height: 32
             onPressed: { //接收鼠标按下事件
                 clickPos  = Qt.point(mouse.x,mouse.y)
 
@@ -108,3 +121,10 @@ Window {
        }
     }
 }
+
+
+
+/*##^## Designer {
+    D{i:4;anchors_y:46}
+}
+ ##^##*/

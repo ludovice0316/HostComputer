@@ -456,3 +456,8 @@ QVector<double> ReadSerial::getWeightData(){
 QVector<QString> ReadSerial::getDateData(){
     return *date;
 }
+
+//测试
+void ReadSerial::test(float i){
+    emit dataAvailable(i);
+}

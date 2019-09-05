@@ -80,7 +80,8 @@ public slots:
     //返回date数据给qml
     QVector<QString> getDateData();
 
-
+    //测试
+    void test(float i);
 
 private:
     QString port;

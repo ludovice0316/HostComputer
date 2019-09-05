@@ -2,12 +2,19 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.3
+import QtGraphicalEffects 1.12
 import QtCharts 2.3
 
 Page{
     id: homePage
     width: 1080
-    height: 960
+    height: 600
+    Rectangle{
+        id:background
+        anchors.fill: parent
+        color: "#eff3f6"
+    }
+
     Rectangle {
         id: control_panel
 
@@ -18,21 +25,64 @@ Page{
         property real passed_ratio: 100
         property real passed_number: 0
         property real failed_number: 0
+        property real current_weight: 0
+        property real upper_limit: 10
+        property real lower_limit: 0
+
+        //左侧动画
+        Behavior on max_weight {
+            PropertyAnimation{
+                duration: 100
+            }
+        }
+        Behavior on average_weight {
+            PropertyAnimation{
+                duration: 100
+            }
+        }
+        Behavior on min_weight {
+            PropertyAnimation{
+                duration: 100
+            }
+        }
+        Behavior on current_weight {
+            PropertyAnimation{
+                duration: 100
+            }
+        }
+
+        //右侧动画
+        Behavior on passed_ratio {
+            PropertyAnimation{
+                duration: 100
+            }
+        }
+//        Behavior on passed_number {
+//            PropertyAnimation{
+//                duration: 100
+//            }
+//        }
+//        Behavior on failed_number {
+//            PropertyAnimation{
+//                duration: 100
+//            }
+//        }
+//        Behavior on sum_number {
+//            PropertyAnimation{
+//                duration: 100
+//            }
+//        }
 
 
         width: parent.width/4
         radius: 2
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
+        anchors.bottomMargin: 30
         anchors.left: parent.left
         anchors.leftMargin: 10
         anchors.top: parent.top
         anchors.topMargin: 20
 
-        FontLoader{
-            id:roboto_thin
-            source: "qrc:/Font/Roboto-Thin.ttf"
-        }
 
         Rectangle {
             id: control_title
@@ -48,32 +98,15 @@ Page{
             anchors.topMargin: 0
 
             Text {
-                id: weight
+                id: controlPanel_title
                 width: implicitWidth
                 height: implicitHeight
-                text: qsTr("重量")
-                anchors.verticalCenter: parent.verticalCenter
+                text: qsTr("控制面板")
                 anchors.left: parent.left
                 anchors.leftMargin: 10
+                anchors.verticalCenter: parent.verticalCenter
                 lineHeight: 0.9
-                font.pixelSize: 24
-            }
-
-            Text {
-                id: weightValue
-                x: 95
-                text: qsTr("0")
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: 24
-            }
-
-            Text {
-                id: unitName
-                text: qsTr("g")
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-                anchors.verticalCenter: parent.verticalCenter
+                font.family: noto_light.name
                 font.pixelSize: 24
             }
         }
@@ -83,7 +116,7 @@ Page{
             width: Math.min(parent.height,parent.width)*2/5
             height: width
             anchors.top: control_title.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: 25
             anchors.left: parent.left
             anchors.leftMargin: 10
             source: "qrc:/Image/SpeedSlot.png"
@@ -147,7 +180,6 @@ Page{
                         ctx.arc(x,y,radius,startAngle,endAngle,false) //绘制圆弧
                         ctx.stroke() //填充路径
                         timer.lastFrameAngle = endAngle - Math.PI/2 //该帧角度，degree角度
-                        //                        console.log(timer.lastFrameAngle)
                     }
 
                     onTriggered: {
@@ -185,7 +217,7 @@ Page{
                     anchors.horizontalCenterOffset: 0
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    anchors.topMargin: 10
+                    anchors.topMargin: 20
                     font.pixelSize: 20
                     font.family: roboto_thin.name
                     color: "#036eb8"
@@ -195,19 +227,19 @@ Page{
 
         Label {
             id: max
+            y: 258
             width: implicitWidth
             height: (speed_panel.height-30)/4
             color: "#515151"
             text: qsTr("上限值")
-            anchors.top: speed_panel.bottom
-            anchors.topMargin: 20
-            anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.bottom: speedSpinBox.top
+            anchors.bottomMargin: 20
+            anchors.horizontalCenter: speedSpinBox.horizontalCenter
             lineHeight: 0.8
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             font.pointSize: 12
-            font.family: roboto_thin.name
+            font.family: noto_light.name
         }
 
         Label {
@@ -216,14 +248,13 @@ Page{
             height: max.height
             color: "#515151"
             text: qsTr("下限值")
-            anchors.top: max.bottom
-            anchors.topMargin: 20
-            anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.horizontalCenter: speed.horizontalCenter
+            anchors.top: max.top
+            anchors.topMargin: 0
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font.pointSize: 12
-            font.family: roboto_thin.name
+            font.family: noto_light.name
         }
 
         Label {
@@ -232,45 +263,15 @@ Page{
             height: max.height
             color: "#515151"
             text: qsTr("电机速度")
-            anchors.top: min.bottom
-            anchors.topMargin: 20
+            anchors.top: parent.top
+            anchors.topMargin: 305
             anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.leftMargin: 32
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             font.pointSize: 12
-            font.family: roboto_thin.name
+            font.family: noto_light.name
 
-        }
-
-        SpinBox {
-            id: minSpinBox
-            width: 120
-            height: 40
-            anchors.verticalCenterOffset: 0
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.verticalCenter: min.verticalCenter
-            Material.accent: Material.Blue
-            Material.primary: Material.Red
-            wheelEnabled: true
-            editable: true
-            font.family: roboto_regular.name
-        }
-
-        SpinBox {
-            id: maxSpinBox
-            height: 40
-            width: 120
-            anchors.verticalCenterOffset: 0
-            anchors.verticalCenter: max.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            wheelEnabled: true
-            editable: true
-            Material.accent: Material.Blue
-            Material.primary: Material.Red
-            font.family: roboto_regular.name
         }
 
         SpinBox {
@@ -287,6 +288,7 @@ Page{
             font.family: roboto_regular.name
 
             onValueChanged: {
+
                 //如果还未启动，则不需要播放动画和显示电机速度
                 if(start_button.mycheck === true){
                     speed_value.text = String(speedSpinBox.value)
@@ -319,11 +321,14 @@ Page{
         Button {
             id: clear_button
             x: 160
-            y: 490
             width: 100
             height: 48
             text: qsTr("清空数据")
-            font.family: roboto_regular.name
+            anchors.right: parent.right
+            anchors.rightMargin: 21
+            anchors.top: parent.top
+            anchors.topMargin: 480
+            font.family: noto_light.name
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
@@ -335,41 +340,50 @@ Page{
                 control_panel.passed_number = 0
                 control_panel.passed_ratio = 100
                 control_panel.failed_number = 0
-
-                //将数据显示置零
-                moreInfo_model.setProperty(0,"data_value",String((0).toFixed(0)))
-                moreInfo_model.setProperty(1,"data_value",String((0).toFixed(1)))
-                moreInfo_model.setProperty(2,"data_value",String((0).toFixed(1)))
-                moreInfo_model.setProperty(3,"data_value",String((0).toFixed(1)))
+                control_panel.upper_limit = 10
+                control_panel.lower_limit = 0
+                control_panel.current_weight = 0
 
                 //将曲线图置零
-                line.clear()
-                axisX.max = 10
-                axisY.max = 50
-                axisY.min = 0
-                chart.pointX = 0
+                passed_scatter.clear()
+                failed_scatter.clear()
+
+                lower_line.clear()
+                lower_line.append(axisX.min,0)
+                lower_line.append(axisX.max,0)
+                lowerLimit.text = "0.0"
+
+                upper_line.clear()
+                upper_line.append(axisX.min,10)
+                upper_line.append(axisX.max,10)
+                upperLimit.text = "10.0"
+
+                //还原XY轴初始设置
+                axisX.max = 41
+                chart.pointX = 1
+
+                axisY.max = 12.5
+                axisY.min = -2.5
             }
         }
 
         Button {
             property bool mycheck: false
-            x: 140
-            y: 99
+            x: 142
             width: 120
-            height: 48
+            height: 50
 
             id: start_button
             text: qsTr("启动")
-            anchors.bottom: speed_panel.bottom
-            anchors.bottomMargin: 31
+            anchors.top: speedPort_combo.bottom
             anchors.leftMargin: 0
             anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.topMargin: 10
+            anchors.rightMargin: 8
+            anchors.topMargin: 0
             font.pointSize: 10
             spacing: 4
-            font.family: roboto_regular.name
-            Material.background: Material.Blue
+            font.family: noto_light.name
+            Material.background:Material.Blue
             Material.elevation: 0
 
             onClicked: {
@@ -385,7 +399,7 @@ Page{
 
                     start_button.mycheck = true
                     text = qsTr("停止")
-                    Material.background = Material.Red
+                    Material.background = "#d81e06"
                     writeSerial.start()
                     readSerial.beltStart()
                 }
@@ -415,11 +429,13 @@ Page{
 
         Button {
             id: calibrationButton_200g
-            x: 0
-            y: 490
             width: 100
             text: qsTr("200克校准")
-            font.family: roboto_regular.name
+            anchors.left: parent.left
+            anchors.leftMargin: 14
+            anchors.top: parent.top
+            anchors.topMargin: 480
+            font.family: noto_light.name
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
@@ -429,11 +445,13 @@ Page{
 
         Button {
             id: calibrationButton_0g
-            x: 0
-            y: 441
             width: 100
-            text: qsTr("零点校准")
-            font.family: roboto_regular.name
+            text: qsTr("0克校准")
+            anchors.left: parent.left
+            anchors.leftMargin: 14
+            anchors.top: parent.top
+            anchors.topMargin: 430
+            font.family: noto_light.name
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
@@ -441,10 +459,10 @@ Page{
             }
         }
 
-        FontLoader{
-            id:noto_thin
-            source: "qrc:/Font/NotoSansCJK-Thin.ttc"
 
+        FontLoader{
+            id:roboto_thin
+            source: "qrc:/Font/Roboto-Thin.ttf"
         }
 
         FontLoader{
@@ -452,14 +470,156 @@ Page{
             source: "qrc:/Font/Roboto-Regular.ttf"
         }
 
+
+        FontLoader{
+            id:noto_light
+            source: "qrc:/Font/NotoSansSC-Light.otf"
+        }
+
+        FontLoader{
+            id:noto_bold
+            source: "qrc:/Font/NotoSansSC-Bold.otf"
+        }
+
+        ButtonGroup{
+            id:photocell
+        }
+
+        ComboBox {
+            id: measurePort_combo
+            width: 120
+            model: ListModel {
+                id: measurePort_model
+            }
+            font.family: noto_light.name
+            displayText:"测量串口"
+            height: 48
+            anchors.right: control_panel.right
+            anchors.rightMargin: 10
+            anchors.top: parent.top
+            anchors.topMargin: 65
+            onActivated: {
+                if(readSerial.resetPortName(currentText)){
+                    measurePort_combo.displayText = currentText
+                }
+                else{
+                    measurePort_combo.displayText = "测量串口"
+                }
+            }
+        }
+
+        ComboBox {
+            id: speedPort_combo
+            font.family: noto_light.name
+            model: ListModel {
+                id: speedPort_model
+            }
+            displayText: "调速串口"
+            width: 120
+            height: 48
+            anchors.right: control_panel.right
+            anchors.rightMargin: 10
+            anchors.top: measurePort_combo.bottom
+            anchors.topMargin: 0
+            onActivated: {
+                if(writeSerial.resetPortName(currentText)){
+                    speedPort_combo.displayText = currentText
+                }
+                else{
+                    speedPort_combo.displayText = "调速串口"
+                }
+            }
+        }
+
+        RadioButton {
+            id: single_photocell
+            x: 142
+            width: 100
+            height: 48
+            text: qsTr("单光电")
+            anchors.right: parent.right
+            anchors.rightMargin: 21
+            anchors.top: parent.top
+            anchors.topMargin: 340
+            font.family: noto_light.name
+            onCheckedChanged: {
+                if(checked === true){
+                    readSerial.photocellSet("single")
+                }
+            }
+            ButtonGroup.group: photocell
+        }
+
+        RadioButton {
+            id: double_photocell
+            width: 100
+            text: qsTr("双光电")
+            anchors.left: parent.left
+            anchors.leftMargin: 14
+            anchors.top: parent.top
+            anchors.topMargin: 340
+            autoRepeat: false
+            checked: true
+            font.family: noto_light.name
+            onCheckedChanged: {
+                if(checked === true){
+                    readSerial.photocellSet("double")
+                }
+            }
+            ButtonGroup.group: photocell
+        }
+
+        ButtonGroup{
+            id:fitting
+        }
+
+        RadioButton {
+            id: newton
+            x: 142
+            width: 100
+            height: 49
+            text: qsTr("牛顿拟合")
+            anchors.right: parent.right
+            anchors.rightMargin: 21
+            anchors.top: parent.top
+            anchors.topMargin: 370
+            ButtonGroup.group: fitting
+            font.family: noto_light.name
+            onCheckedChanged: {
+                if(checked === true){
+                    readSerial.linear()
+                }
+            }
+        }
+
+        RadioButton {
+            id: twoPoint
+            width: 100
+            text: qsTr("两点拟合")
+            anchors.left: parent.left
+            anchors.leftMargin: 14
+            anchors.top: parent.top
+            anchors.topMargin: 370
+            checked: true
+            ButtonGroup.group: fitting
+            font.family: noto_light.name
+            onCheckedChanged: {
+                if(checked === true){
+                    readSerial.linear()
+                }
+            }
+        }
+
         Button {
             id: dynamic_cal
-            x: 160
-            y: 441
             width: 100
             height: 48
             text: qsTr("动态校准")
-            font.family: roboto_regular.name
+            anchors.right: parent.right
+            anchors.rightMargin: 21
+            anchors.top: parent.top
+            anchors.topMargin: 430
+            font.family: noto_light.name
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
@@ -467,73 +627,72 @@ Page{
             }
         }
 
-        RadioButton {
-            id: single_photocell
-            x: 162
-            y: 319
-            width: 100
-            height: 48
-            text: qsTr("单光电")
-            onCheckedChanged: {
-                if(checked === true){
-                    readSerial.photocellSet("single")
-                    console.log("single")
-                }
+        TextField {
+            id: lowerLimit
+            width: 64
+            height: 50
+            text: qsTr("0.0")
+            topPadding: 8
+            bottomPadding: 16
+            anchors.bottom: min.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: min.horizontalCenter
+            horizontalAlignment: Text.AlignHCenter
+            font.family: noto_bold.name
+            font.pixelSize: 18
+            color: "#d81e06"
+
+            Component.onCompleted: {
+                var lower = Number(text).toFixed(1)
+                text = String(lower)
+                control_panel.lower_limit = lower
+                lower_line.clear()
+                lower_line.append(axisX.min,lower)
+                lower_line.append(axisX.max,lower)
             }
 
-            RadioButton {
-                id: radioButton1
-                x: 0
-                y: 35
-                text: qsTr("牛顿拟合")
-            }
-        }
-
-        RadioButton {
-            id: double_photocell
-            x: 8
-            y: 319
-            width: 100
-            text: qsTr("双光电")
-            checked: true
-            onCheckedChanged: {
-                if(checked === true){
-                    readSerial.photocellSet("double")
-                    console.log("double")
-                }
-            }
-
-        }
-
-        Switch {
-            id: fitting_button
-            height: 48
-            text: qsTr("两点拟合")
-            anchors.left: start_button.left
-            anchors.leftMargin: 319
-            anchors.right: parent.right
-            anchors.rightMargin: -309
-            anchors.top: control_title.bottom
-            anchors.topMargin: 49
-
-            onCheckedChanged: {
-                if(checked === true){
-                    readSerial.newton()
-                    fitting_button.text = "牛顿拟合"
-                }
-                else{
-                    readSerial.linear()
-                    fitting_button.text = "两点拟合"
-                }
+            onAccepted: {
+                var lower = Number(text).toFixed(1)
+                text = String(lower)
+                control_panel.lower_limit = lower
+                lower_line.clear()
+                lower_line.append(axisX.min,lower)
+                lower_line.append(axisX.max,lower)
             }
         }
 
-        RadioButton {
-            id: radioButton
-            x: 8
-            y: 353
-            text: qsTr("两点拟合")
+        TextField {
+            id: upperLimit
+            width: 64
+            height: 50
+            text: qsTr("10.0")
+            anchors.bottom: max.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: max.horizontalCenter
+            horizontalAlignment: Text.AlignHCenter
+            font.family: noto_bold.name
+            font.pixelSize: 18
+            color: "#d81e06"
+
+            Component.onCompleted: {
+                var upper = Number(text).toFixed(1)
+                text = String(upper)
+                control_panel.upper_limit = upper
+                upper_line.clear()
+                upper_line.append(axisX.min,control_panel.upper_limit)
+                upper_line.append(axisX.max,control_panel.upper_limit)
+            }
+
+            onAccepted: {
+                var upper = Number(text).toFixed(1)
+                text = String(upper)
+                control_panel.upper_limit = upper
+                upper_line.clear()
+                upper_line.append(axisX.min,control_panel.upper_limit)
+                upper_line.append(axisX.max,control_panel.upper_limit)
+            }
         }
+
 
 
         Component.onCompleted:{
@@ -541,109 +700,61 @@ Page{
         }
 
         function changeWeightValue(data){
-            sum_number++;
-            average_weight = (average_weight*(sum_number-1)+data)/sum_number
-            max_weight = Math.max(max_weight,data)
+
+            if(start_button.mycheck === false){
+                return
+            }
+
+            var newSum = sum_number+1
+
+            var newAverage = (average_weight*(newSum-1)+data)/(newSum)
+
+            var newMax = Math.max(max_weight,data)
+
+            var newMin
             if(min_weight == 0){
-                min_weight = data
+                newMin = data
             }
             else{
-                min_weight = Math.min(min_weight,data)
+                newMin = Math.min(min_weight,data)
             }
 
-            weightValue.text = String(data.toFixed(1))
-            moreInfo_model.setProperty(0,"data_value",String(sum_number.toFixed(0)))
-            moreInfo_model.setProperty(1,"data_value",String(average_weight.toFixed(1)))
-            moreInfo_model.setProperty(2,"data_value",String(max_weight.toFixed(1)))
-            moreInfo_model.setProperty(3,"data_value",String(min_weight.toFixed(1)))
-        }
-
-    }
-
-    ComboBox {
-        id: measurePort_combo
-        model: ListModel {
-            id: measurePort_model
-        }
-        displayText: readSerial.connectedPort()
-        width: 120
-        anchors.left: chart.right
-        anchors.leftMargin: 70
-        anchors.top: parent.top
-        anchors.topMargin: 15
-        onActivated: {
-            if(readSerial.resetPortName(currentText)){
-                measurePort_combo.displayText = currentText
+            var newPassedNum = passed_number
+            var newFailedNum = failed_number
+            if(data<control_panel.upper_limit&&data>control_panel.lower_limit){
+                newPassedNum = passed_number+1
             }
             else{
-                measurePort_combo.displayText = ""
+                newFailedNum = failed_number+1
             }
-        }
-    }
 
-    ComboBox {
-        id: speedPort_combo
-        model: ListModel {
-            id: speedPort_model
-        }
-        displayText: writeSerial.connectedPort()
-        width: 120
-        anchors.left: chart.right
-        anchors.leftMargin: 70
-        anchors.verticalCenter: chart.verticalCenter
-        onActivated: {
-            if(writeSerial.resetPortName(currentText)){
-                speedPort_combo.displayText = currentText
-            }
-            else{
-                speedPort_combo.displayText = ""
-            }
-        }
-    }
+            var newPassedRatio
+            newPassedRatio = (newPassedNum/(newSum))*100
 
-    SpinBox {
-        id: zeroSetting
-        y: 161
-        width: 120
-        height: 48
-        anchors.left: chart.right
-        anchors.leftMargin: 70
-        anchors.bottom: chart.bottom
-        anchors.bottomMargin: 0
-        editable: true
-        stepSize: 10
-        from:0
-        to: 2100
-        onValueChanged: {
-            readSerial.zeroSetting(String(zeroSetting.value))
+            //给右侧显示card重新赋值
+            sum_number = newSum
+            passed_number = newPassedNum
+            failed_number = newFailedNum
+            passed_ratio = newPassedRatio
+            //给左侧显示card重新赋值
+            current_weight = data
+            min_weight = newMin
+            max_weight = newMax
+            average_weight = newAverage
         }
 
-        hoverEnabled: true
-
-        ToolTip.timeout: 8000
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("操作流程：
-1、机器静止状态下，使用4位半万用表测量传感器S+与S-两端电压值得Vs；
-2、系统调零参数Vz=(Vs-1.2mv)*100")
     }
 
     ChartView{
         id:chart
-        legend.visible: false
-
-        property real pointX: 0
+        legend.font: noto_bold.name
+        property real pointX: 1
         property real pointY: 0
+        x: 288
+        y: 196
 
-        objectName: "chart"
-        anchors.right: parent.right
-        anchors.rightMargin: 200
-        anchors.left: control_panel.right
-        anchors.leftMargin: 20
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 705
-        anchors.top: parent.top
-        anchors.topMargin: 15
-        title: qsTr("重量")
+        width: 784
+        height: 384
 
         antialiasing: true
 
@@ -654,234 +765,511 @@ Page{
 
         ValueAxis{
             id: axisX
-            min: 0
-            max: 10
+            min: 1
+            max: 41
             tickCount: 6
             labelFormat: "%d"
-
+            labelsFont: noto_bold.name
         }
         ValueAxis{
             id: axisY
-            min: -5
-            max: 15
-            tickCount: 5
-            labelFormat: "%d"
+            min: control_panel.lower_limit-(control_panel.upper_limit-control_panel.lower_limit)/4
+            max: control_panel.upper_limit+(control_panel.upper_limit-control_panel.lower_limit)/4
+            tickCount: 7
+            labelsFont: noto_bold.name
         }
 
+        ScatterSeries{
+            id:passed_scatter
+            name:"合格"
+            useOpenGL: true
+            axisX:  axisX
+            axisY:  axisY
+            markerSize: 8
+        }
+
+        ScatterSeries{
+            id:failed_scatter
+            name:"不合格"
+            useOpenGL: true
+            axisX:  axisX
+            axisY:  axisY
+            color: "#F44336"
+            markerSize: 8
+        }
 
         LineSeries{
-            id:line
+            id:upper_line
             useOpenGL:true
             axisX:  axisX
             axisY:  axisY
-            objectName: "line"
+            color: "#F44336"
+        }
+
+        LineSeries{
+            id:lower_line
+            useOpenGL:true
+            axisX:  axisX
+            axisY:  axisY
+            color: "#F44336"
         }
     }
 
     Rectangle {
-        id: moreInfo
-        x: 20
-        y: 270
+        id: minCard
+        x: 296
+        y: 106
+        width: 170
+        height: 80
         color: "#ffffff"
         radius: 10
-        anchors.top: chart.bottom
-        //anchors.top: slider.bottom
-        anchors.topMargin: 10
-        anchors.right: parent.right
-        anchors.rightMargin: 10
-        z: 1
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 400
-        anchors.left: control_panel.right
-        anchors.leftMargin: 20
-        border.color: "#8ebff1"
+        anchors.top: parent.top
+        anchors.topMargin: 110
+        anchors.left: parent.left
+        anchors.leftMargin: 288
 
-        Rectangle {
-            id: rectangle4
-            clip: true
-            width: 440
-            color: "white"
-            anchors.right: parent.right
-            anchors.rightMargin: 10
+        Image {
+            id: minIcon
+            x: -287
+            y: 22
+            width: 40
+            height: 40
+            anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.leftMargin: 15
+            source: "qrc:/Icon/Min.png"
+            fillMode: Image.PreserveAspectFit
+        }
+
+        Text {
+            id: minValue
+            color: "#000000"
+            text: qsTr(control_panel.min_weight.toFixed(1)+"")
+            anchors.horizontalCenter: minDiscribe.horizontalCenter
+            anchors.bottom: minDiscribe.top
+            anchors.bottomMargin: 0
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+
+        Text {
+            id: minDiscribe
+            text: qsTr("最小值")
+            anchors.right: parent.right
+            anchors.rightMargin: 40
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 10
-            anchors.top: parent.top
-            anchors.topMargin: 10
+            anchors.bottomMargin: 15
+            font.family: noto_light.name
+            font.pixelSize: 16
+            width:implicitWidth
+            height:implicitHeight
+            color: (control_panel.lower_limit<control_panel.min_weight&&control_panel.min_weight<control_panel.upper_limit)?"#1296db":"#d81e06"
+        }
 
-            ListView {
-                id: listView
-                anchors.fill: parent
-                delegate: Rectangle {
-                    id: dataElement
-                    width: parent.width
-                    height: 40
-                    color: background_color
-
-                    MouseArea{
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: {
-                            dataElement.color = "#448aff"
-                        }
-                        onExited: {
-                            dataElement.color = background_color
-                        }
-
-                    }
-
-                    Text {
-                        id: dataName
-                        width: implicitWidth
-                        text: data_name
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 10
-                        anchors.top: parent.top
-                        anchors.topMargin: 10
-                        anchors.left: parent.left
-                        anchors.leftMargin: 10
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCente
-                        font.pixelSize: 12
-                    }
-
-                    Text {
-                        id: dataValue
-                        width: 88
-                        height: implicitHeight
-                        text: data_value
-                        anchors.horizontalCenterOffset: 60
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenterOffset: 0
-                        anchors.left: dataIcon.right
-                        anchors.leftMargin: 10
-                        anchors.verticalCenter: parent.verticalCenter
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        font.family: "Courier"
-                        font.pixelSize: 12
-                    }
-
-                    Image {
-                        id: dataIcon
-                        width: 30
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 5
-                        anchors.top: parent.top
-                        anchors.topMargin: 5
-                        anchors.left: parent.left
-                        anchors.leftMargin: 90
-                        fillMode: Image.PreserveAspectFit
-                        source: icon_source
-                    }
-
-                    Text {
-                        id: unit
-                        x: 399
-                        width: implicitWidth
-                        height: 48
-                        text: unit_name
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 10
-                        anchors.top: parent.top
-                        anchors.topMargin: 10
-                        anchors.right: parent.right
-                        anchors.rightMargin: 10
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: 12
-                    }
-                }
-
-                model: ListModel{
-                    id:moreInfo_model
-                    ListElement{
-                        background_color:"#f8f8f8"
-                        data_name:"总数"
-                        data_value:"0"
-                        icon_source:""
-                        unit_name:"个"
-                    }
-                    ListElement{
-                        background_color:"#f1f1f1"
-                        data_name:"平均值"
-                        data_value:"0"
-                        icon_source:""
-                        unit_name:"g"
-                    }
-                    ListElement{
-                        background_color:"#f8f8f8"
-                        data_name:"最大值"
-                        data_value:"0"
-                        icon_source:""
-                        unit_name:"g"
-                    }
-                    ListElement{
-                        background_color:"#f1f1f1"
-                        data_name:"最小值"
-                        data_value:"0"
-                        icon_source:""
-                        unit_name:"g"
-                    }
-                    ListElement{
-                        background_color:"#f8f8f8"
-                        data_name:"合格率"
-                        data_value:"100"
-                        icon_source:""
-                        unit_name:"%"
-                    }
-                    ListElement{
-                        background_color:"#f1f1f1"
-                        data_name:"不合格数"
-                        data_value:"0"
-                        icon_source:""
-                        unit_name:"个"
-                    }
-                    ListElement{
-                        background_color:"#f8f8f8"
-                        data_name:"合格数"
-                        data_value:"0"
-                        icon_source:""
-                        unit_name:"个"
-                    }
-                }
-            }
+        Text {
+            id: minUnit
+            color: "#000000"
+            text: qsTr("g")
+            font.family: noto_bold.name
+            anchors.verticalCenter: minValue.verticalCenter
+            anchors.left: minValue.right
+            anchors.leftMargin: 5
+            font.pixelSize: 24
         }
     }
 
-    Label {
-        id: label
-        width:implicitWidth
-        height: implicitHeight
-        text: qsTr("测量串口")
-        anchors.right: measurePort_combo.left
-        anchors.rightMargin: 10
-        anchors.verticalCenter: measurePort_combo.verticalCenter
+    Rectangle {
+        id: averageCard
+        x: 464
+        y: 20
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        Image {
+            id: averageIcon
+            y: 24
+            width: 40
+            height: 40
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            source: "qrc:/Icon/Average.png"
+            fillMode: Image.PreserveAspectFit
+        }
+
+        Text {
+            id: averageValue
+            color: "#000000"
+            text: qsTr(control_panel.average_weight.toFixed(1)+"")
+            anchors.bottom: averageDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: averageDiscribe.horizontalCenter
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+
+        Text {
+            id: averageDiscribe
+            y: 139
+            width: implicitWidth
+            height: implicitHeight
+            color: (control_panel.lower_limit<control_panel.average_weight&&control_panel.average_weight<control_panel.upper_limit)?"#1296db":"#d81e06"
+            text: qsTr("平均值")
+            anchors.right: parent.right
+            anchors.rightMargin: 40
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: averageUnit
+            color: "#000000"
+            text: qsTr("g")
+            anchors.left: averageValue.right
+            anchors.leftMargin: 5
+            anchors.verticalCenter: averageValue.verticalCenter
+            font.pixelSize: 24
+            font.family: noto_bold.name
+        }
     }
 
-    Label {
-        id: label1
-        width: implicitWidth
-        height: implicitHeight
-        text: qsTr("调速串口")
-        anchors.verticalCenter: speedPort_combo.verticalCenter
-        anchors.right: speedPort_combo.left
-        anchors.rightMargin: 10
+    Rectangle {
+        id: maxCard
+        x: 288
+        y: 20
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        Image {
+            id: maxIcon
+            y: 23
+            width: 40
+            height: 40
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            source: "qrc:/Icon/Max.png"
+            fillMode: Image.PreserveAspectFit
+        }
+
+        Text {
+            id: maxValue
+            color: "#000000"
+            text: qsTr(control_panel.max_weight.toFixed(1)+"")
+            anchors.bottom: maxDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: maxDiscribe.horizontalCenter
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+
+        Text {
+            id: maxDiscribe
+            width: implicitWidth
+            height: implicitHeight
+            color: (control_panel.lower_limit<control_panel.max_weight&&control_panel.max_weight<control_panel.upper_limit)?"#1296db":"#d81e06"
+            text: qsTr("最大值")
+            anchors.right: parent.right
+            anchors.rightMargin: 40
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: maxUnit
+            y: 13
+            color: "#000000"
+            text: qsTr("g")
+            anchors.left: maxValue.right
+            anchors.leftMargin: 5
+            anchors.verticalCenter: maxValue.verticalCenter
+            font.pixelSize: 24
+            font.family: noto_bold.name
+        }
     }
 
-    Label {
-        id: label2
-        width: implicitWidth
-        height: implicitHeight
-        text: qsTr("系统调零")
-        anchors.verticalCenter: zeroSetting.verticalCenter
-        anchors.right: zeroSetting.left
+    Rectangle {
+        id: sumCard
+        x: 899
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        anchors.right: parent.right
         anchors.rightMargin: 10
+        anchors.top: passedCard.bottom
+        anchors.topMargin: 10
+        Image {
+            id: sumIcon
+            y: 19
+            width: 35
+            height: 35
+            anchors.verticalCenterOffset: 0
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            source: "qrc:/Icon/Sum.png"
+            anchors.leftMargin: 15
+            fillMode: Image.PreserveAspectFit
+        }
 
+        Text {
+            id: sumValue
+            color: "#000000"
+            text: qsTr(control_panel.sum_number.toFixed(0)+"")
+            anchors.bottom: sumDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: sumDiscribe.horizontalCenter
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+
+        Text {
+            id: sumDiscribe
+            x: 90
+            y: 31
+            width: implicitWidth
+            height: implicitHeight
+            color: "#1296db"
+            text: qsTr("总数")
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            anchors.right: parent.right
+            anchors.rightMargin: 48
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
     }
 
+    Rectangle {
+        id: failedCard
+        x: 720
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        anchors.right: sumCard.left
+        anchors.rightMargin: 10
+        anchors.top: ratioCard.bottom
+        anchors.topMargin: 10
+        Image {
+            id: failedIcon
+            y: 24
+            width: 48
+            height: 48
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            anchors.verticalCenter: parent.verticalCenter
+            source: "qrc:/Icon/Failed.png"
+            fillMode: Image.PreserveAspectFit
+        }
 
+        Text {
+            id: failedValue
+            x: 123
+            y: 8
+            color: "#000000"
+            text: qsTr(control_panel.failed_number.toFixed(0)+"")
+            anchors.bottom: failedDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: failedDiscribe.horizontalCenter
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+
+        Text {
+            id: failedDiscribe
+            x: 78
+            y: 45
+            width: implicitWidth
+            height: implicitHeight
+            color: "#d81e06"
+            text: qsTr("不合格数")
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            anchors.right: parent.right
+            anchors.rightMargin: 30
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
+    }
+
+    Rectangle {
+        id: ratioCard
+        x: 679
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        anchors.top: parent.top
+        anchors.topMargin: 20
+        anchors.right: passedCard.left
+        anchors.rightMargin: 10
+        border.color: "#ffffff"
+        Image {
+            id: ratioIcon
+            y: 24
+            width: 48
+            height: 48
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            anchors.verticalCenter: parent.verticalCenter
+            source: "qrc:/Icon/Ratio.png"
+            fillMode: Image.PreserveAspectFit
+        }
+
+        Text {
+            id: ratioValue
+            color: "#000000"
+            text: qsTr(control_panel.passed_ratio.toFixed(1)+"")
+            anchors.bottom: ratioDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenterOffset: 0
+            font.family: noto_bold.name
+            font.pixelSize: 24
+            anchors.horizontalCenter: ratioDiscribe.horizontalCenter
+        }
+
+        Text {
+            id: ratioDiscribe
+            width: implicitWidth
+            height: implicitHeight
+            color: "#1296db"
+            text: qsTr("合格率")
+            anchors.right: parent.right
+            anchors.rightMargin: 40
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: ratioUnit
+            color: "#000000"
+            text: qsTr("%")
+            anchors.verticalCenterOffset: 0
+            anchors.left: ratioValue.right
+            anchors.leftMargin: 5
+            anchors.verticalCenter: ratioValue.verticalCenter
+            font.pixelSize: 24
+            font.family: noto_bold.name
+        }
+    }
+
+    Rectangle {
+        id: passedCard
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        anchors.right: parent.right
+        anchors.rightMargin: 10
+        anchors.top: parent.top
+        anchors.topMargin: 20
+        border.color: "#ffffff"
+        Image {
+            id: passedIcon
+            width: 48
+            height: 48
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            anchors.verticalCenter: parent.verticalCenter
+            source: "qrc:/Icon/Passed.png"
+            fillMode: Image.PreserveAspectFit
+        }
+
+        Text {
+            id: passedValue
+            color: "#000000"
+            text: qsTr(control_panel.passed_number.toFixed(0)+"")
+            anchors.bottom: passedDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenter: passedDiscribe.horizontalCenter
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+
+        Text {
+            id: passedDiscribe
+            width: implicitWidth
+            height: implicitHeight
+            color: "#1296db"
+            text: qsTr("合格数")
+            anchors.right: parent.right
+            anchors.rightMargin: 40
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
+    }
+
+    Rectangle {
+        id: weightCard
+        width: 170
+        height: 80
+        color: "#ffffff"
+        radius: 10
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.leftMargin: 464
+        anchors.topMargin: 110
+
+        Image {
+            id: weightIcon
+            width: 48
+            height: 48
+            fillMode: Image.PreserveAspectFit
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            source: "qrc:/Icon/dash.png"
+            anchors.leftMargin: 8
+        }
+
+        Text {
+            id: weightValue
+            color: "#000000"
+            text: qsTr(control_panel.current_weight.toFixed(1)+"")
+            anchors.bottom: weightDiscribe.top
+            anchors.bottomMargin: 0
+            anchors.horizontalCenterOffset: 0
+            font.family: noto_bold.name
+            font.pixelSize: 24
+            anchors.horizontalCenter: weightDiscribe.horizontalCenter
+        }
+
+        Text {
+            id: weightDiscribe
+            width: implicitWidth
+            height: 24
+            color: (control_panel.lower_limit<Number(weightValue.text)&&Number(weightValue.text)<control_panel.upper_limit)?"#1296db":"#d81e06"
+            text: qsTr("重量")
+            anchors.right: parent.right
+            anchors.rightMargin: 48
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 14
+            font.family: noto_light.name
+            font.pixelSize: 16
+        }
+
+        Text {
+            id: weightUnit
+            color: "#000000"
+            text: qsTr("g")
+            anchors.verticalCenterOffset: 0
+            anchors.left: weightValue.right
+            anchors.verticalCenter: weightValue.verticalCenter
+            anchors.leftMargin: 5
+            font.family: noto_bold.name
+            font.pixelSize: 24
+        }
+    }
 
 
     Component.onCompleted:{
@@ -895,20 +1283,35 @@ Page{
 
 
     function addData(data){
+        if(start_button.mycheck === false){
+            return
+        }
+
         var value = data
         chart.pointY = value
         if(chart.pointX>axisX.max){
-            axisX.max *= 2
+            axisX.max += 40
+            upper_line.append(axisX.max,control_panel.upper_limit)
+            lower_line.append(axisX.max,control_panel.lower_limit)
         }
-        if(chart.pointY>axisY.max){
-            axisY.max = (chart.pointY/10+1)*10
+        if(control_panel.lower_limit<chart.pointY&&chart.pointY<control_panel.upper_limit){
+            passed_scatter.append(chart.pointX,chart.pointY)
+            chart.pointX++;
         }
-        if(chart.pointY<axisY.min){
-            axisY.min = (chart.pointY/10-1)*10
+        else if(chart.pointY>=control_panel.upper_limit){
+            if(chart.pointY>axisY.max){
+                axisY.max = Math.ceil(chart.pointY)
+            }
+            failed_scatter.append(chart.pointX,chart.pointY)
+            chart.pointX++;
         }
-
-        line.append(chart.pointX,chart.pointY)
-        chart.pointX++;
+        else if(chart.pointY<=control_panel.lower_limit){
+            if(chart.pointY<axisY.min){
+                axisY.min = Math.floor(chart.pointY)
+            }
+            failed_scatter.append(chart.pointX,chart.pointY)
+            chart.pointX++;
+        }
     }
 }
 
@@ -956,9 +1359,109 @@ Page{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*##^## Designer {
-    D{i:24;anchors_y:367}D{i:25;anchors_y:367}D{i:27;anchors_x:150;anchors_y:483}D{i:28;anchors_width:100;anchors_x:150;anchors_y:425}
-D{i:31;anchors_x:927}D{i:30;anchors_x:927;anchors_y:0}D{i:33;anchors_x:927}D{i:32;anchors_x:927}
-D{i:34;anchors_x:927}D{i:39;anchors_y:270}
+    D{i:12;anchors_y:305}D{i:14;anchors_x:160;anchors_y:157}D{i:15;anchors_x:160;anchors_y:157}
+D{i:16;anchors_x:160;anchors_y:157}D{i:17;anchors_x:160;anchors_y:157}D{i:18;anchors_x:160;anchors_y:157}
+D{i:19;anchors_x:8;anchors_y:482}D{i:20;anchors_x:8;anchors_y:482}D{i:22;anchors_width:119;anchors_x:927;anchors_y:0}
+D{i:24;anchors_width:119;anchors_x:927;anchors_y:0}D{i:23;anchors_width:119;anchors_x:927;anchors_y:0}
+D{i:26;anchors_width:119;anchors_x:927;anchors_y:0}D{i:25;anchors_width:119;anchors_x:927;anchors_y:0}
+D{i:27;anchors_x:927;anchors_y:319}D{i:28;anchors_x:927;anchors_y:319}D{i:29;anchors_x:927;anchors_y:319}
+D{i:30;anchors_x:6;anchors_y:319}D{i:31;anchors_y:363}D{i:32;anchors_height:100;anchors_width:100;anchors_y:363}
+D{i:33;anchors_y:363}D{i:34;anchors_height:100;anchors_width:100;anchors_y:270}D{i:36;anchors_height:100;anchors_width:100;anchors_y:270}
+D{i:37;anchors_height:100;anchors_width:100;anchors_y:270}D{i:38;anchors_height:100;anchors_width:100;anchors_y:270}
+D{i:39;anchors_height:100;anchors_width:100}D{i:40;anchors_y:270}D{i:41;anchors_x:105;anchors_y:270}
+D{i:35;anchors_height:100;anchors_width:100;anchors_y:270}D{i:43;anchors_x:105;anchors_y:270}
+D{i:44;anchors_x:105;anchors_y:270}D{i:45;anchors_x:105;anchors_y:0}D{i:46;anchors_x:54;anchors_y:8}
+D{i:42;anchors_x:105;anchors_y:270}D{i:48;anchors_x:21;anchors_y:139}D{i:49;anchors_x:69;anchors_y:0}
+D{i:50;anchors_x:105;anchors_y:0}D{i:51;anchors_x:8;anchors_y:8}D{i:47;anchors_x:21;anchors_y:139}
+D{i:53;anchors_x:21;anchors_y:139}D{i:54;anchors_x:91;anchors_y:0}D{i:55;anchors_x:210;anchors_y:0}
+D{i:56;anchors_x:8;anchors_y:8}D{i:52;anchors_x:21;anchors_y:139}D{i:58;anchors_x:21;anchors_y:139}
+D{i:59;anchors_x:134;anchors_y:0}D{i:60;anchors_x:315;anchors_y:117}D{i:57;anchors_x:21;anchors_y:3}
+D{i:62;anchors_x:21;anchors_y:139}D{i:63;anchors_x:21;anchors_y:139}D{i:64;anchors_x:420;anchors_y:110}
+D{i:61;anchors_x:54;anchors_y:8}D{i:66;anchors_x:21;anchors_y:139}D{i:67;anchors_x:21;anchors_y:139}
+D{i:68;anchors_x:525;anchors_y:20}D{i:69;anchors_x:54;anchors_y:8}D{i:65;anchors_x:54;anchors_y:8}
+D{i:71;anchors_x:21;anchors_y:139}D{i:72;anchors_x:81;anchors_y:20}D{i:73;anchors_x:8;anchors_y:20}
+D{i:70;anchors_x:8;anchors_y:139}D{i:75;anchors_x:105;anchors_y:0}D{i:76;anchors_height:24;anchors_x:105;anchors_y:0}
+D{i:77;anchors_height:24;anchors_x:105;anchors_y:0}D{i:78;anchors_height:24;anchors_x:54;anchors_y:8}
+D{i:74;anchors_x:8;anchors_y:20}
 }
  ##^##*/

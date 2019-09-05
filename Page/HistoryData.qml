@@ -6,9 +6,6 @@ Page{
     id:historyData
     SwipeView{
         id:swipeView
-        anchors.topMargin: 0
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
         anchors.fill:parent
         currentIndex: tabBar.currentIndex
 

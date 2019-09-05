@@ -7,7 +7,6 @@
         <file>Menu/MyMenu.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>Icon/Menu.png</file>
-        <file>Font/NotoSansCJK-Thin.ttc</file>
         <file>Font/Roboto-Regular.ttf</file>
         <file>Font/Roboto-Thin.ttf</file>
         <file>Page/HomePage.qml</file>
@@ -16,5 +15,17 @@
         <file>Icon/Close.png</file>
         <file>Icon/return.png</file>
         <file>Page/HistoryData.qml</file>
+        <file>Font/NotoSansSC-Bold.otf</file>
+        <file>Font/NotoSansSC-Light.otf</file>
+        <file>Icon/Failed.png</file>
+        <file>Icon/Ratio.png</file>
+        <file>Icon/Sum.png</file>
+        <file>Icon/Max.png</file>
+        <file>Icon/Average.png</file>
+        <file>Icon/Min.png</file>
+        <file>Icon/Value.png</file>
+        <file>Icon/Weight.png</file>
+        <file>Icon/dash.png</file>
+        <file>Icon/Passed.png</file>
     </qresource>
 </RCC>
