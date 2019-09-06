@@ -333,3 +333,7 @@ bool WriteSerial::resetPortName(const QString& name){
 QString WriteSerial::connectedPort(){
     return port;
 }
+
+void WriteSerial::close(){
+    serial->close();
+}

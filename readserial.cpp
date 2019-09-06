@@ -461,3 +461,7 @@ QVector<QString> ReadSerial::getDateData(){
 void ReadSerial::test(float i){
     emit dataAvailable(i);
 }
+
+void ReadSerial::close(){
+    serial->close();
+}

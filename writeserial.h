@@ -55,6 +55,9 @@ public slots:
     //获取当前连接到的端口号
     QString connectedPort();
 
+    //关闭调速串口
+    void close();
+
 private:
     QString port;
     QSerialPort* serial;

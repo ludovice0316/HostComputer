@@ -83,6 +83,9 @@ public slots:
     //测试
     void test(float i);
 
+    //关闭测量串口
+    void close();
+
 private:
     QString port;
     QSerialPort* serial;
