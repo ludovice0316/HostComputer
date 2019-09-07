@@ -18,6 +18,14 @@ Page{
 
     Rectangle {
         id: control_panel
+
+        function popMessageDialog(){
+            messageDialog.messageTitle = "设置错误！"
+            messageDialog.messageIcon = "qrc:/Image/Setting.png"
+            messageDialog.messageDetail = "请确认测量串口是否连接..."
+            messageDialog.open()
+        }
+
         //总数
         property real sum_number: 0
         //平均质量
@@ -93,6 +101,7 @@ Page{
                 id: controlPanel_title
                 width: implicitWidth
                 height: implicitHeight
+                color: "#ffffff"
                 text: qsTr("控制面板")
                 anchors.left: parent.left
                 anchors.leftMargin: 10
@@ -281,10 +290,11 @@ Page{
 
 
             onValueChanged: {
-                if(speedPort_combo.displayText === "调速串口"){
-                    startDialog.title = "设置失败！"
-                    startDialog.detail = "请确认打开调速串口后再设置速度"
-                    startDialog.open()
+                if(speedPort_combo.displayText === "调速串口"||measurePort_combo.displayText === "测量串口"){
+                    messageDialog.messageTitle = "设置失败！"
+                    messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                    messageDialog.messageDetail = "请确认打开调速串口后再设置速度"
+                    messageDialog.open()
                     value = 0
                     return
                 }
@@ -383,21 +393,24 @@ Page{
                 if(start_button.mycheck === false){
                     //判断速度是否已设置
                     if(speedSpinBox.value === 0){
-                        startDialog.title = "启动失败！"
-                        startDialog.detail = "请先设置速度"
-                        startDialog.open()
+                        messageDialog.messageTitle = "启动失败！"
+                        messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                        messageDialog.messageDetail = "请先设置速度"
+                        messageDialog.open()
                         return
                     }
-                    if(speedPort_combo.displayText === "调速串口"){
-                        startDialog.title = "启动失败！"
-                        startDialog.detail = "调速串口未连接..."
-                        startDialog.open()
+                    if(speedPort_combo.displayText === "调速串口"||measurePort_combo.displayText === "测量串口"){
+                        messageDialog.messageTitle = "启动失败！"
+                        messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                        messageDialog.messageDetail = "调速串口未连接..."
+                        messageDialog.open()
                         return
                     }
                     if(control_panel.upper_limit === Number.MAX_VALUE||control_panel.lower_limit === -Number.MAX_VALUE){
-                        startDialog.title = "启动失败！"
-                        startDialog.detail = "请先设置上限值和下限值..."
-                        startDialog.open()
+                        messageDialog.messageTitle = "启动失败！"
+                        messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                        messageDialog.messageDetail = "请先设置上限值和下限值..."
+                        messageDialog.open()
                         return
                     }
 
@@ -495,6 +508,10 @@ Page{
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
+                if(measurePort_combo.displayText === "测量串口"){
+                    control_panel.popMessageDialog()
+                    return
+                }
                 readSerial.calibration("200")
             }
         }
@@ -511,6 +528,10 @@ Page{
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
+                if(measurePort_combo.displayText === "测量串口"){
+                    control_panel.popMessageDialog()
+                    return
+                }
                 readSerial.calibration("0")
             }
         }
@@ -544,38 +565,67 @@ Page{
         Dialog {
             id: messageDialog
 
-            property string connectStatus: ""
-            property string detail: ""
-
-            width: 300
-            height: 150
-            modal: true
+            property string headerColor: "#1296db"
+            property string messageTitle: "连接成功"
+            property string messageDetail: "已与串口连接"
+            property string messageIcon: "qrc:/Image/Setting.png"
             x: (homePage.width - width) / 2
             y: (homePage.height - height) / 2
+            modal: true
+            width: 350
+            height: 260
 
-            title: connectStatus
-            Label {
-                text: messageDialog.detail
+            header: Rectangle{
+                anchors.fill: parent
+                color: "white"
+                clip: true
+                Rectangle{
+                    id:messageHeader
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    width: messageDialog.width
+                    height: 150
+                    color: messageDialog.headerColor
+                    Image {
+                        id: messageDialogIcon
+                        width: 64
+                        height: 64
+                        anchors.centerIn: parent
+                        source: messageDialog.messageIcon
+                    }
+                }
+
+                Text {
+                    id: title
+                    text: messageDialog.messageTitle
+                    anchors.left: parent.left
+                    anchors.leftMargin: 10
+                    anchors.top: messageHeader.bottom
+                    anchors.topMargin: 15
+                    font.pixelSize: 28
+                    font.family: noto_bold.name
+                    color: "#707070"
+                }
+
+                Text {
+                    id: detail
+                    text: messageDialog.messageDetail
+                    wrapMode: Text.WrapAnywhere
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 15
+                    anchors.right: parent.right
+                    anchors.rightMargin: 15
+                    anchors.left: parent.left
+                    anchors.leftMargin: 15
+                    anchors.top: title.bottom
+                    anchors.topMargin: 10
+                    font.pixelSize: 16
+                    font.family: noto_light.name
+                    color: "#707070"
+                }
             }
         }
 
-        Dialog {
-            id: startDialog
-
-            property string connectStatus: ""
-            property string detail: ""
-
-            width: 300
-            height: 150
-            modal: true
-            x: (homePage.width - width) / 2
-            y: (homePage.height - height) / 2
-
-            title: startDialog.connectStatus
-            Label {
-                text: startDialog.detail
-            }
-        }
 
         ComboBox {
             id: measurePort_combo
@@ -617,14 +667,14 @@ Page{
                     readSerial.close()
 
                     //修改dialog中显示内容
-                    messageDialog.connectStatus = "已断开连接！"
+                    messageDialog.messageTitle = "已断开连接！"
+                    messageDialog.messageIcon = "qrc:/Image/Connected.png"
                     if(measurePort_combo.displayText === "测量串口"){
-                        messageDialog.detail = "测量串口未连接..."
+                        messageDialog.messageDetail = "测量串口已断开连接..."
                     }
                     else{
-                        messageDialog.detail = "测量串口已从: " + measurePort_combo.displayText + "端口断开连接断开..."
+                        messageDialog.messageDetail = "测量串口已从: " + measurePort_combo.displayText + "端口断开连接断开..."
                     }
-
                     //修改combox中显示内容
                     measurePort_combo.displayText = "测量串口"
                     messageDialog.open()
@@ -632,12 +682,13 @@ Page{
                 else{
                     if(readSerial.resetPortName(currentText)){
                         //修改dialog中的内容
-                        messageDialog.connectStatus = "已成功连接！"
+                        messageDialog.messageTitle = "已成功连接！"
+                        messageDialog.messageIcon = "qrc:/Image/Connected.png"
                         if(measurePort_combo.displayText === currentText){
-                            messageDialog.detail = "测量串口已与:"+currentText+"端口重新连接..."
+                            messageDialog.messageDetail = "测量串口已与:"+currentText+"端口重新连接..."
                         }
                         else{
-                            messageDialog.detail = "测量串口已与: " + currentText+"端口成功连接..."
+                            messageDialog.messageDetail = "测量串口已与: " + currentText+"端口成功连接..."
                         }
 
                         //修改combox中的内容
@@ -645,8 +696,9 @@ Page{
                         messageDialog.open()
                     }
                     else{
-                        messageDialog.connectStatus = "连接失败!"
-                        messageDialog.detail = "请查看"+currentText+"端口是否被占用"
+                        messageDialog.messageIcon = "qrc:/Image/Warning.png"
+                        messageDialog.messageTitle = "连接失败!"
+                        messageDialog.messageDetail = "请查看"+currentText+"端口是否被占用"
                         measurePort_combo.displayText = "测量串口"
                         messageDialog.open()
                     }
@@ -694,12 +746,13 @@ Page{
                     writeSerial.close()
 
                     //修改dialog中显示内容
-                    messageDialog.connectStatus = "已断开连接！"
+                    messageDialog.messageTitle = "已断开连接！"
+                    messageDialog.messageIcon = "qrc:/Image/Connected.png"
                     if(speedPort_combo.displayText === "调速串口"){
-                        messageDialog.detail = "调速串口未连接..."
+                        messageDialog.messageDetail = "调速串口已断开连接..."
                     }
                     else{
-                        messageDialog.detail = "调速串口已从: " + speedPort_combo.displayText + "端口断开连接断开..."
+                        messageDialog.messageDetail = "调速串口已从: " + speedPort_combo.displayText + "端口断开连接断开..."
                     }
 
                     //修改combox中的内容
@@ -709,12 +762,13 @@ Page{
                 else{
                     if(writeSerial.resetPortName(currentText)){
                         //修改dialog中的内容
-                        messageDialog.connectStatus = "已成功连接！"
+                        messageDialog.messageTitle = "已成功连接！"
+                        messageDialog.messageIcon = "qrc:/Image/Connected.png"
                         if(speedPort_combo.displayText === currentText){
-                            messageDialog.detail = "调速串口已与: " + currentText+"端口重新连接..."
+                            messageDialog.messageDetail = "调速串口已与: " + currentText+"端口重新连接..."
                         }
                         else{
-                            messageDialog.detail = "调速串口已与: " + currentText+"端口成功连接..."
+                            messageDialog.messageDetail = "调速串口已与: " + currentText+"端口成功连接..."
                         }
 
                         //修改combox中的内容
@@ -723,8 +777,9 @@ Page{
                     }
                     else{
                         //修改dialog中的内容
-                        messageDialog.connectStatus = "连接失败!"
-                        messageDialog.detail = "请查看"+currentText+"端口是否被占用"
+                        messageDialog.messageTitle = "连接失败!"
+                        messageDialog.messageIcon = "qrc:/Image/Warning.png"
+                        messageDialog.messageDetail = "请查看"+currentText+"端口是否被占用"
 
                         //修改combox中的内容
                         speedPort_combo.displayText = "调速串口"
@@ -745,8 +800,14 @@ Page{
             anchors.top: parent.top
             anchors.topMargin: 340
             font.family: noto_light.name
-            onCheckedChanged: {
+            onClicked: {
                 if(checked === true){
+                    if(measurePort_combo.displayText === "测量串口"){
+                        control_panel.popMessageDialog()
+                        checked = false
+                        double_photocell.checked = true
+                        return
+                    }
                     readSerial.photocellSet("single")
                 }
             }
@@ -764,8 +825,14 @@ Page{
             autoRepeat: false
             checked: true
             font.family: noto_light.name
-            onCheckedChanged: {
+            onClicked: {
                 if(checked === true){
+                    if(measurePort_combo.displayText === "测量串口"){
+                        control_panel.popMessageDialog()
+                        checked = false
+                        single_photocell.checked = true
+                        return
+                    }
                     readSerial.photocellSet("double")
                 }
             }
@@ -788,9 +855,16 @@ Page{
             anchors.topMargin: 370
             ButtonGroup.group: fitting
             font.family: noto_light.name
-            onCheckedChanged: {
+
+            onClicked: {
                 if(checked === true){
-                    readSerial.linear()
+                    if(measurePort_combo.displayText === "测量串口"){
+                        control_panel.popMessageDialog()
+                        checked = false
+                        twoPoint.checked = true
+                        return
+                    }
+                    readSerial.newton()
                 }
             }
         }
@@ -806,8 +880,14 @@ Page{
             checked: true
             ButtonGroup.group: fitting
             font.family: noto_light.name
-            onCheckedChanged: {
+            onClicked: {
                 if(checked === true){
+                    if(measurePort_combo.displayText === "测量串口"){
+                        control_panel.popMessageDialog()
+                        checked = false
+                        newton.checked = true
+                        return
+                    }
                     readSerial.linear()
                 }
             }
@@ -826,6 +906,10 @@ Page{
             Material.background: Material.Blue
             Material.elevation: 0
             onClicked: {
+                if(measurePort_combo.displayText === "测量串口"){
+                    control_panel.popMessageDialog()
+                    return
+                }
                 readSerial.dynamic_cal()
             }
         }
@@ -849,9 +933,10 @@ Page{
                 if(focus === true){
                     //如果是动态,不允许改变上下限值，切回静态后再改
                     if(start_button.mycheck === true){
-                        startDialog.title = "设置失败"
-                        startDialog.detail = "请停止后再设置上限值"
-                        startDialog.open()
+                        messageDialog.messageTitle = "设置失败"
+                        messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                        messageDialog.messageDetail = "请停止后再设置上限值"
+                        messageDialog.open()
                         text = control_panel.lower_limit.toFixed(1)
                         focus = false
                         return
@@ -862,9 +947,10 @@ Page{
             onAccepted: {
                 //如果下限值输入的比当前上限值还大,设置失败弹出对话框
                 if(Number(lowerLimit.text)>=control_panel.upper_limit){
-                    startDialog.title = "设置失败"
-                    startDialog.detail = "输入的下限值比当前上限值大，请重新输入"
-                    startDialog.open()
+                    messageDialog.messageTitle = "设置失败"
+                    messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                    messageDialog.messageDetail = "输入的下限值比当前上限值大，请重新输入"
+                    messageDialog.open()
                     text = control_panel.lower_limit === -Number.MAX_VALUE?"\\":control_panel.lower_limit.toFixed(1)
                     return
                 }
@@ -891,9 +977,10 @@ Page{
                 if(focus === true){
                     //如果是动态,不允许改变上下限值，切回静态后再改
                     if(start_button.mycheck === true){
-                        startDialog.title = "设置失败"
-                        startDialog.detail = "请停止后再设置上限值"
-                        startDialog.open()
+                        messageDialog.messageTitle = "设置失败"
+                        messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                        messageDialog.messageDetail = "请停止后再设置上限值"
+                        messageDialog.open()
                         text = control_panel.upper_limit.toFixed(1)
                         focus = false
                         return
@@ -904,9 +991,10 @@ Page{
             onAccepted: {
                 //如果设置上限值比当前下限值还小，设置失败，弹出对话框
                 if(Number(upperLimit.text)<=control_panel.lower_limit){
-                    startDialog.title = "设置失败"
-                    startDialog.detail = "输入的上限值比当前下限值小，请重新输入"
-                    startDialog.open()
+                    messageDialog.messageTitle = "设置失败"
+                    messageDialog.messageIcon = "qrc:/Image/Setting.png"
+                    messageDialog.messageDetail = "输入的上限值比当前下限值小，请重新输入"
+                    messageDialog.open()
                     text = control_panel.upper_limit === Number.MAX_VALUE?"\\":control_panel.upper_limit.toFixed(1)
                     return
                 }
@@ -914,6 +1002,7 @@ Page{
                 control_panel.upper_limit = Number(text).toFixed(1)
             }
         }
+
 
 
 
@@ -1765,36 +1854,53 @@ Page{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*##^## Designer {
     D{i:12;anchors_y:305}D{i:14;anchors_x:160;anchors_y:157}D{i:15;anchors_x:160;anchors_y:157}
 D{i:16;anchors_x:160;anchors_y:157}D{i:17;anchors_x:160;anchors_y:157}D{i:18;anchors_x:160;anchors_y:157}
 D{i:19;anchors_x:8;anchors_y:482}D{i:20;anchors_x:8;anchors_y:482}D{i:22;anchors_width:119;anchors_x:927;anchors_y:0}
-D{i:24;anchors_width:119;anchors_x:927;anchors_y:0}D{i:23;anchors_width:119;anchors_x:927;anchors_y:0}
 D{i:26;anchors_width:119;anchors_x:927;anchors_y:0}D{i:25;anchors_width:119;anchors_x:927;anchors_y:0}
-D{i:29;anchors_x:927;anchors_y:319}D{i:27;anchors_width:119;anchors_x:927;anchors_y:0}
-D{i:32;anchors_height:100;anchors_width:100;anchors_x:6;anchors_y:319}D{i:31;anchors_x:927;anchors_y:319}
-D{i:30;anchors_x:927;anchors_y:319}D{i:33;anchors_y:363}D{i:34;anchors_height:100;anchors_width:100;anchors_y:363}
-D{i:35;anchors_y:363}D{i:36;anchors_height:100;anchors_width:100;anchors_y:270}D{i:37;anchors_height:100;anchors_width:100;anchors_y:270}
-D{i:38;anchors_height:100;anchors_width:100;anchors_y:270}D{i:39;anchors_height:100;anchors_width:100;anchors_y:270}
-D{i:40;anchors_height:100;anchors_width:100;anchors_y:270}D{i:42;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}
-D{i:43;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}D{i:44;anchors_height:100;anchors_width:100;anchors_x:54;anchors_y:8}
-D{i:45;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}D{i:46;anchors_height:100;anchors_width:100;anchors_x:21;anchors_y:270}
-D{i:47;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}D{i:48;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:0}
-D{i:41;anchors_height:384;anchors_width:784;anchors_x:288;anchors_y:196}D{i:50;anchors_height:100;anchors_width:100;anchors_x:21;anchors_y:139}
-D{i:51;anchors_x:21;anchors_y:139}D{i:52;anchors_x:69;anchors_y:0}D{i:53;anchors_x:105;anchors_y:0}
-D{i:49;anchors_height:100;anchors_width:100;anchors_x:54;anchors_y:8}D{i:55;anchors_x:21;anchors_y:139}
-D{i:56;anchors_x:21;anchors_y:139}D{i:57;anchors_x:91;anchors_y:0}D{i:58;anchors_x:210;anchors_y:0}
-D{i:54;anchors_x:464;anchors_y:20}D{i:60;anchors_x:21;anchors_y:3}D{i:61;anchors_x:21;anchors_y:139}
-D{i:62;anchors_x:134;anchors_y:0}D{i:63;anchors_x:315;anchors_y:117}D{i:59;anchors_x:288;anchors_y:20}
-D{i:65;anchors_x:21;anchors_y:139}D{i:66;anchors_x:21;anchors_y:139}D{i:67;anchors_x:420;anchors_y:110}
-D{i:64;anchors_x:54;anchors_y:8}D{i:69;anchors_x:21;anchors_y:139}D{i:70;anchors_x:21;anchors_y:139}
-D{i:71;anchors_x:525;anchors_y:20}D{i:68;anchors_x:54;anchors_y:8}D{i:73;anchors_x:8;anchors_y:139}
-D{i:74;anchors_height:24;anchors_x:21;anchors_y:139}D{i:75;anchors_height:24;anchors_x:81;anchors_y:20}
-D{i:76;anchors_height:24;anchors_x:8;anchors_y:20}D{i:72;anchors_x:54;anchors_y:8}
-D{i:78;anchors_height:24;anchors_x:105;anchors_y:0}D{i:79;anchors_height:24;anchors_x:105;anchors_y:0}
-D{i:80;anchors_height:24;anchors_x:105;anchors_y:0}D{i:77;anchors_height:24;anchors_x:8;anchors_y:20}
-D{i:82;anchors_height:24;anchors_x:105;anchors_y:0}D{i:83;anchors_height:24;anchors_x:54;anchors_y:8}
-D{i:84;anchors_height:24;anchors_x:8;anchors_y:20}D{i:85;anchors_height:24;anchors_x:105;anchors_y:0}
-D{i:81;anchors_height:24;anchors_x:54;anchors_y:8}
+D{i:28;anchors_width:119;anchors_x:927;anchors_y:0}D{i:24;anchors_width:119;anchors_x:927;anchors_y:0}
+D{i:23;anchors_width:119;anchors_x:927;anchors_y:0}D{i:31;anchors_width:119;anchors_x:927;anchors_y:319}
+D{i:30;anchors_x:927;anchors_y:319}D{i:29;anchors_width:119;anchors_x:927;anchors_y:0}
+D{i:34;anchors_height:100;anchors_width:100;anchors_x:927;anchors_y:363}D{i:33;anchors_height:100;anchors_width:100;anchors_x:6;anchors_y:319}
+D{i:32;anchors_width:119;anchors_x:927;anchors_y:319}D{i:35;anchors_height:100;anchors_width:100;anchors_x:927;anchors_y:363}
+D{i:36;anchors_height:100;anchors_width:100;anchors_x:6;anchors_y:363}D{i:39;anchors_height:100;anchors_width:100;anchors_y:270}
+D{i:42;anchors_height:100;anchors_width:100;anchors_y:270}D{i:44;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}
+D{i:45;anchors_height:100;anchors_width:100;anchors_x:54;anchors_y:8}D{i:46;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}
+D{i:47;anchors_height:100;anchors_width:100;anchors_x:21;anchors_y:270}D{i:48;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}
+D{i:49;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:0}D{i:50;anchors_height:100;anchors_width:100;anchors_x:54;anchors_y:8}
+D{i:43;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:270}D{i:52;anchors_height:100;anchors_width:100;anchors_x:21;anchors_y:139}
+D{i:53;anchors_height:100;anchors_width:100;anchors_x:69;anchors_y:0}D{i:54;anchors_height:100;anchors_width:100;anchors_x:105;anchors_y:0}
+D{i:55;anchors_x:464;anchors_y:20}D{i:51;anchors_height:100;anchors_width:100;anchors_x:21;anchors_y:139}
+D{i:57;anchors_x:21;anchors_y:139}D{i:58;anchors_x:91;anchors_y:0}D{i:59;anchors_x:210;anchors_y:0}
+D{i:60;anchors_x:288;anchors_y:20}D{i:56;anchors_x:21;anchors_y:139}D{i:62;anchors_x:21;anchors_y:139}
+D{i:63;anchors_x:134;anchors_y:0}D{i:64;anchors_x:315;anchors_y:117}D{i:65;anchors_x:54;anchors_y:8}
+D{i:61;anchors_x:21;anchors_y:3}D{i:67;anchors_x:21;anchors_y:139}D{i:68;anchors_x:420;anchors_y:110}
+D{i:69;anchors_x:54;anchors_y:8}D{i:66;anchors_x:21;anchors_y:139}D{i:71;anchors_x:21;anchors_y:139}
+D{i:72;anchors_x:525;anchors_y:20}D{i:73;anchors_height:24;anchors_x:54;anchors_y:8}
+D{i:70;anchors_x:21;anchors_y:139}D{i:75;anchors_height:24;anchors_x:21;anchors_y:139}
+D{i:76;anchors_height:24;anchors_x:81;anchors_y:20}D{i:77;anchors_height:24;anchors_x:8;anchors_y:20}
+D{i:78;anchors_height:24;anchors_x:8;anchors_y:20}D{i:74;anchors_height:24;anchors_x:8;anchors_y:139}
+D{i:80;anchors_height:24;anchors_x:105;anchors_y:0}D{i:81;anchors_height:24;anchors_x:105;anchors_y:0}
+D{i:82;anchors_height:24;anchors_x:54;anchors_y:8}D{i:79;anchors_height:24;anchors_x:105;anchors_y:0}
+D{i:84;anchors_height:24;anchors_x:54;anchors_y:8}D{i:85;anchors_height:24;anchors_x:8;anchors_y:20}
+D{i:86;anchors_height:24;anchors_x:105;anchors_y:0}D{i:87;anchors_height:24;anchors_x:54;anchors_y:8}
+D{i:83;anchors_height:24;anchors_x:105;anchors_y:0}
 }
  ##^##*/

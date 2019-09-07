@@ -7,45 +7,63 @@ Rectangle{
     color: "lightblue"
     radius: 4
 
-    ComboBox {
-        id: measure
-        x: 90
-        y: 8
-        model: ListModel{
-            id:measure_model
-        }
-        onActivated: {
-            readSerial.resetPortName(currentText)
-        }
-    }
+    Dialog {
+        id: messageDialog
 
-    ComboBox {
-        id: speed
-        x: 90
-        y: 62
-        model: ListModel{
-            id:speed_model
-        }
-        onActivated: {
-            writeSerial.resetPortName(currentText)
-        }
-    }
+        property string headerColor: "#1296db"
+        property string messageTitle: "连接成功"
+        property string messageDetail: "已与串口连接"
+        property string messageIcon: "qrc:/Image/Setting.png"
+        x: 145
+        y: 88
+        modal: true
+        width: 350
+        height: 320
+        header: Rectangle{
+            anchors.fill: parent
+            color: "white"
+            Rectangle{
+                id:messageHeader
+                anchors.top: parent.top
+                anchors.left: parent.left
+                width: messageDialog.width
+                height: 150
+                color: messageDialog.headerColor
+                Image {
+                    id: messageDialogIcon
+                    width: 64
+                    height: 64
+                    anchors.centerIn: parent
+                    source: messageDialog.messageIcon
+                }
+            }
 
-    Text {
-        id: element
-        x: 8
-        y: 26
-        text: qsTr("测量串口")
-        lineHeight: 0.8
-        font.pixelSize: 12
-    }
+            Text {
+                id: title
+                text: messageDialog.messageTitle
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                anchors.top: messageHeader.bottom
+                anchors.topMargin: 15
+                font.pixelSize: 28
+            }
 
-    Text {
-        id: element1
-        x: 8
-        y: 80
-        text: qsTr("电机串口")
-        font.pixelSize: 12
+            Text {
+                id: detail
+                text: messageDialog.messageDetail
+                wrapMode: Text.WrapAnywhere
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 15
+                anchors.right: parent.right
+                anchors.rightMargin: 15
+                anchors.left: parent.left
+                anchors.leftMargin: 15
+                anchors.top: title.bottom
+                anchors.topMargin: 20
+                font.pixelSize: 16
+                color: "#707070"
+            }
+        }
     }
 
     SpinBox {
@@ -113,11 +131,56 @@ Rectangle{
         }
     }
 
+    Rectangle {
+        id: rectangle1
+        x: 272
+        y: 8
+        width: 350
+        height: 320
+        color: "#ffffff"
+        visible: false
+
+        Rectangle {
+            id: rectangle2
+            x: 0
+            y: 0
+            width: 350
+            height: 150
+            color: "#1296db"
+        }
+
+        Text {
+            id: element
+            text: qsTr("Text")
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            anchors.top: rectangle2.bottom
+            anchors.topMargin: 15
+            font.pixelSize: 28
+        }
+
+        Text {
+            id: element1
+            text: qsTr("Text")
+            wrapMode: Text.WrapAnywhere
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 15
+            anchors.right: parent.right
+            anchors.rightMargin: 15
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            anchors.top: element.bottom
+            anchors.topMargin: 20
+            font.pixelSize: 16
+        }
+    }
+
+
     Component.onCompleted: {
         var list = readSerial.availablePort()
         for(var i=0;i<list.length;i++){
-            measure_model.append({text:list[i]})
-            speed_model.append({text:list[i]})
+            //measure_model.append({text:list[i]})
+            //speed_model.append({text:list[i]})
         }
     }
 }
@@ -126,7 +189,25 @@ Rectangle{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
+    D{i:0;autoSize:true;height:480;width:640}D{i:10;anchors_x:22;anchors_y:156}D{i:11;anchors_height:12;anchors_width:309;anchors_x:22;anchors_y:202}
 }
  ##^##*/

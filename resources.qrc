@@ -27,5 +27,8 @@
         <file>Icon/Weight.png</file>
         <file>Icon/dash.png</file>
         <file>Icon/Passed.png</file>
+        <file>Image/Connected.png</file>
+        <file>Image/Setting.png</file>
+        <file>Image/Warning.png</file>
     </qresource>
 </RCC>

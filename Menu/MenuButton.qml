@@ -89,6 +89,7 @@ Button{
 
             listView.currentIndex = index
             stackView.push(model.source)
+            menu_button.icon.source = "qrc:/Icon/return.png"
             drawer.close()
         }
     }

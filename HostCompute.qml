@@ -30,7 +30,6 @@ Window {
 
     StackView {
         id: stackView
-        x: -259
         width: parent.width
         height: parent.height-rectangle.height
         anchors.top: rectangle.bottom
@@ -102,12 +101,16 @@ Window {
             anchors.leftMargin: 0
             icon.source: "qrc:/Icon/Menu.png"
             onClicked: {
-                menu_button.icon.source = stackView.depth > 1 ? "qrc:/Icon/Menu.png" : "qrc:/Icon/return.png"
+                if(stackView.depth > 1){
+                    menu_button.icon.source = "qrc:/Icon/Menu.png"
+                }
+
                 if (stackView.depth > 1) {
                     stackView.pop()
                 } else {
                     drawer.open()
                 }
+
             }
         }
 
@@ -122,9 +125,3 @@ Window {
     }
 }
 
-
-
-/*##^## Designer {
-    D{i:4;anchors_y:46}
-}
- ##^##*/
