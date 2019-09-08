@@ -46,20 +46,23 @@ Rectangle{
             model: ListModel {
                 id:model
                 ListElement {
-                    source:"qrc:/Page/TestPage.qml"
-                    content:"分选参数"
+                    source:"qrc:/Page/Singing.qml"
+                    content:"唱"
                 }
 
                 ListElement {
-                    source:"qrc:/Page/TestPage.qml"
-                    content:"输出端口"
+                    source:"qrc:/Page/Dancing.qml"
+                    content:"跳"
                 }
 
                 ListElement {
-                    source:"qrc:/Page/TestPage.qml"
-                    content:"台秤标定"
+                    source:"qrc:/Page/Rap.qml"
+                    content:"Rap"
                 }
-
+                ListElement {
+                    source:"qrc:/Page/HistoryData.qml"
+                    content:"篮球"
+                }
                 ListElement {
                     source:"qrc:/Page/HistoryData.qml"
                     content:"历史数据"

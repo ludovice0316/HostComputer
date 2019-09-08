@@ -30,5 +30,15 @@
         <file>Image/Connected.png</file>
         <file>Image/Setting.png</file>
         <file>Image/Warning.png</file>
+        <file>Page/Singing.qml</file>
+        <file>Page/Dancing.qml</file>
+        <file>Page/Rap.qml</file>
+        <file>Image/doge.png</file>
+        <file>Music/BeautifulChicken.wav</file>
+        <file>Music/BeautifulChicken.mp3</file>
+        <file>Image/Record.jpg</file>
+        <file>Image/cxk.png</file>
+        <file>Video/chickenDancing1.avi</file>
+        <file>Video/doctorRap.avi</file>
     </qresource>
 </RCC>

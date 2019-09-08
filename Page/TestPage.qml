@@ -4,67 +4,12 @@ import QtQuick.Controls 2.12
 
 Rectangle{
     id:testPage
-    color: "lightblue"
-    radius: 4
+    Image {
+        anchors.fill: parent
+        source: "qrc:/Image/doge.png"
 
-    Dialog {
-        id: messageDialog
-
-        property string headerColor: "#1296db"
-        property string messageTitle: "连接成功"
-        property string messageDetail: "已与串口连接"
-        property string messageIcon: "qrc:/Image/Setting.png"
-        x: 145
-        y: 88
-        modal: true
-        width: 350
-        height: 320
-        header: Rectangle{
-            anchors.fill: parent
-            color: "white"
-            Rectangle{
-                id:messageHeader
-                anchors.top: parent.top
-                anchors.left: parent.left
-                width: messageDialog.width
-                height: 150
-                color: messageDialog.headerColor
-                Image {
-                    id: messageDialogIcon
-                    width: 64
-                    height: 64
-                    anchors.centerIn: parent
-                    source: messageDialog.messageIcon
-                }
-            }
-
-            Text {
-                id: title
-                text: messageDialog.messageTitle
-                anchors.left: parent.left
-                anchors.leftMargin: 10
-                anchors.top: messageHeader.bottom
-                anchors.topMargin: 15
-                font.pixelSize: 28
-            }
-
-            Text {
-                id: detail
-                text: messageDialog.messageDetail
-                wrapMode: Text.WrapAnywhere
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 15
-                anchors.right: parent.right
-                anchors.rightMargin: 15
-                anchors.left: parent.left
-                anchors.leftMargin: 15
-                anchors.top: title.bottom
-                anchors.topMargin: 20
-                font.pixelSize: 16
-                color: "#707070"
-            }
-        }
     }
+    radius: 4
 
     SpinBox {
         id: zeroSetting

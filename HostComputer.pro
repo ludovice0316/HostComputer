@@ -46,7 +46,10 @@ DISTFILES += \
     Page/HomePage.qml \
     Page/TestPage.qml \
     Page/TestPage.qml \
-    Page/HistoryData.qml
+    Page/HistoryData.qml \
+    Page/Dancing.qml \
+    Page/Rap.qml \
+    Page/Singing.qml
 
 HEADERS += \
     writeserial.h \

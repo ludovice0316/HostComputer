@@ -21,7 +21,6 @@ Window {
     FontLoader{
         id:noto_light
         source: "qrc:/Font/NotoSansSC-Light.otf"
-
     }
     FontLoader{
         id:roboto_regular

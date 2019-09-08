@@ -61,6 +61,16 @@ Button{
             anchors.left: parent.left
             anchors.leftMargin: 20
             anchors.verticalCenter: parent.verticalCenter
+            source: "qrc:/Image/doge.png"
+        }
+
+        PropertyAnimation{
+            id:dogeAnima
+            target: icon
+            properties: "rotation"
+            duration: 1000;
+            from:0
+            to:360
         }
 
         Text {
@@ -95,9 +105,12 @@ Button{
     }
     onHoveredChanged: {
         if(hovered === true){
+            dogeAnima.start()
             hovered_background.visible = true
         }
         else{
+            dogeAnima.stop()
+            icon.rotation = 0
             hovered_background.visible = false
         }
     }
